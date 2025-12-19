@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
+             $table->string('stripe_id')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');

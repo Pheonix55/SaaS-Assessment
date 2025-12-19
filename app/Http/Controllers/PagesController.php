@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class PagesController extends Controller
 {
     public function register()
@@ -15,7 +13,29 @@ class PagesController extends Controller
     {
         return view('auth.login');
     }
-    public function dashboard(){
-        return view('admin.dashboard');
+
+    public function dashboard()
+    {
+        return view('admin.dashboard1');
+    }
+
+    public function inviteUser()
+    {
+        return view('admin.invitation');
+    }
+
+    public function supportChat()
+    {
+        return view('user.support');
+    }
+
+    public function newDashboard()
+    {
+        return view('admin.subscribtions.plans');
+    }
+
+    public function userProfile()
+    {
+        return view('user.profile');
     }
 }

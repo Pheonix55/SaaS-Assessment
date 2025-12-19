@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Company;
+use App\Observers\CompanyObserver;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Cashier\Cashier;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,8 +20,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
-        //
+        Cashier::useCustomerModel(Company::class);
+        Company::observe(CompanyObserver::class);
     }
 }

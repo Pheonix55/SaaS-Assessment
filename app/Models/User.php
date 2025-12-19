@@ -6,11 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use Billable, HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,7 +26,10 @@ class User extends Authenticatable
         'password',
         'company_id',
         'role',
-        'current_plan'
+        'current_plan',
+        'phone',
+        'about',
+        'profile_image',
     ];
 
     /**
@@ -52,5 +58,20 @@ class User extends Authenticatable
     public function company()
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function hasRole($role)
+    {
+        return $this->role === $role;
+    }
+
+    // public function messages()
+    // {
+    //     return SupportMessage::with('supportThread')->where('sender_id', $this->id)->get();
+    // }
+
+    public function userMessages($thread_id)
+    {
+        return SupportMessage::with('supportThread')->where('support_thread_id', $thread_id)->get();
     }
 }

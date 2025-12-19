@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('subscriptions_old', function (Blueprint $table) {
             $table->id();
             $table->integer('company_id');
             $table->integer('plan_id');
