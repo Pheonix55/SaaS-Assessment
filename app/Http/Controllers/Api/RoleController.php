@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -56,6 +56,8 @@ class RoleController extends Controller
         $user = $request->user();
 
         $roles = Role::where('company_id', $user->company_id)
+            ->where('guard_name', 'web')
+            ->whereNotIn('name', ['SUPER_ADMIN', 'admin'])
             ->select('id', 'name')
             ->get();
 

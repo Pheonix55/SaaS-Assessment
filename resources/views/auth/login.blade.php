@@ -14,16 +14,27 @@
                 <div class="login_form">
                     <form id="loginForm">
                         <fieldset>
-                            <div class="field">
-                                <label class="label_field">Email Address</label>
-                                <input type="email" name="email" placeholder="E-mail" required />
+                            <div class="field d-flex">
+                                {{-- <i class="fa-solid fa-envelope"></i> --}}
+                                <label class="label_field" for="email">Email</label>
+                                <div class="auth-input-group d-flex justify-content-between align-items-center">
+                                    <input type="email" name="email" id="email" placeholder="E-mail" required
+                                        autocomplete="true" />
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
                             </div>
-                            <div class="field">
+                            <div class="field d-flex">
                                 <label class="label_field">Password</label>
-                                <input type="password" name="password" placeholder="Password" required />
+
+                                <div class="auth-input-group d-flex justify-content-between align-items-center">
+                                    <input type="password" name="password" id="password" placeholder="Password" required />
+                                    <i class="fa-solid fa-eye toggle-password" style="cursor:pointer;"></i>
+                                </div>
                             </div>
-                            <div class="field">
+                            <div class="">
                                 <label class="label_field hidden">hidden label</label>
+                            </div>
+                            <div class="field justify-content-between w-100">
                                 <label class="form-check-label">
                                     <input type="checkbox" class="form-check-input" name="remember"> Remember Me
                                 </label>
@@ -49,15 +60,22 @@
 
             const formData = new FormData(this);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const xsrf = decodeURIComponent(
+                document.cookie
+                .split('; ')
+                .find(row => row.startsWith('XSRF-TOKEN='))
+                .split('=')[1]
+            );
 
+            console.log(token, xsrf);
             fetch("{{ url('api/login') }}", {
                     method: "POST",
                     headers: {
-                        'X-CSRF-TOKEN': token,
+                       'X-XSRF-TOKEN': token,
                         'Accept': 'application/json',
                     },
                     body: formData,
-                    credentials: "include"
+                    credentials: "same-origin"
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -65,7 +83,8 @@
 
                     if (data.success) {
                         localStorage.setItem('sanctum_token', data.data.token);
-                        window.location.href = "{{ url('/dashboard') }}";
+                        console.log(data.data);
+                        window.location.href = data.data.redirect;
                     } else {
                         alert(data.message || 'Login failed.');
                     }
@@ -77,4 +96,5 @@
                 });
         });
     </script>
+
 @endsection

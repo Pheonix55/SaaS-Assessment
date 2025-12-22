@@ -46,11 +46,10 @@
     <link rel="stylesheet" href="{{ asset('css/animate.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/flaticon.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}" />
+    @vite(['resources/js/app.js', 'resources/css/app.css'])
 
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-      <![endif]-->
+
+
 </head>
 
 <body class="dashboard dashboard_1">
@@ -68,10 +67,11 @@
                     <div class="sidebar_user_info">
                         <div class="icon_setting"></div>
                         <div class="user_profle_side">
-                            <div class="user_img"><img class="img-responsive" src="images/layout_img/user_img.jpg"
-                                    alt="#" /></div>
+                            <div class="user_img"><img
+                                    class="img-responsive img-fluid rounded-circle user_img_yxwz top_navbar_img"
+                                    src="images/layout_img/user_img.jpg" alt="#" /></div>
                             <div class="user_info">
-                                <h6>John David</h6>
+                                <h6 class="user_name_ytxf">John David</h6>
                                 <p><span class="online_animation"></span> Online</p>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                     <h4>General</h4>
                     <ul class="list-unstyled components">
 
-                        <li><a href="{{ route('dashboard') }}"><i
+                        <li><a href="{{ route('admin.dashboard') }}"><i
                                     class="fa fa-dashboard yellow_color"></i><span>Dashboard</span></a>
                         </li>
                         <li>
@@ -97,25 +97,6 @@
                         <li><a href="{{ route('user.profile') }}"><i class="fa fa-cog yellow_color"></i>
                                 <span>profile</span></a>
                         </li>
-                        {{-- <li class="active">
-                            <a href="#additional_page" data-toggle="collapse" aria-expanded="false"
-                                class="dropdown-toggle"><i class="fa fa-clone yellow_color"></i> <span>Additional
-                                    Pages</span></a>
-                            <ul class="collapse list-unstyled" id="additional_page">
-                                <li>
-                                    <a href="profile.html">> <span>Profile</span></a>
-                                </li>
-                                <li>
-                                    <a href="project.html">> <span>Projects</span></a>
-                                </li>
-                                <li>
-                                    <a href="login.html">> <span>Login</span></a>
-                                </li>
-                                <li>
-                                    <a href="404_error.html">> <span>404 Error</span></a>
-                                </li>
-                            </ul>
-                        </li> --}}
 
 
                         <li><a href="#"><i class="fa fa-cog yellow_color"></i> <span>Settings</span></a>
@@ -147,10 +128,10 @@
                                     </ul>
                                     <ul class="user_profile_dd">
                                         <li>
-                                            <a class="dropdown-toggle" data-toggle="dropdown"><img
-                                                    class="img-responsive rounded-circle"
+                                            <a class="dropdown-toggle d-flex" data-toggle="dropdown"><img
+                                                    class="img-responsive img-fluid rounded-circle user_img_yxwz"
                                                     src="images/layout_img/user_img.jpg" alt="#" /><span
-                                                    class="name_user">John David</span></a>
+                                                    class="user_name_ytxf">John David</span></a>
                                             <div class="dropdown-menu">
                                                 <a class="dropdown-item" href="profile.html">My Profile</a>
                                                 <a class="dropdown-item" href="settings.html">Settings</a>
@@ -204,8 +185,8 @@
             position: fixed;
             bottom: 0;
             right: 10px;
-            width: 360px;
-            height: 520px;
+            width: 60%;
+            height: 70%;
             display: flex;
             flex-direction: column;
             border-radius: 12px;
@@ -250,13 +231,14 @@
             flex-direction: column;
             height: 100%;
             background: #efeae2;
+            position: relative;
         }
 
         #chat-messages {
             flex: 1;
             padding: 12px;
             overflow-y: auto;
-            max-height: 80%;
+            max-height: 100%;
         }
 
         .message {
@@ -283,6 +265,10 @@
             background: #f0f2f5;
             display: flex;
             gap: 8px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            
         }
 
         /* MESSAGE ROW (controls left/right alignment) */
@@ -343,6 +329,42 @@
         .text-black {
             color: black !important;
         }
+
+        /* Split layout */
+        .chat-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .chat-threads {
+            width: 35%;
+            border-right: 1px solid #e0e0e0;
+            background: #f0f2f5;
+            overflow-y: auto;
+        }
+
+        .chat-main {
+            width: 65%;
+            display: flex;
+            flex-direction: column;
+            background: #efeae2;
+        }
+
+        #chat-view {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        #attachmentModal {
+            z-index: 1100000 !important;
+        }
     </style>
 
     <div id="chat-menu"
@@ -360,6 +382,33 @@
 
     </div>
 
+    <!-- Attachment Modal -->
+    <div class="modal fade" id="attachmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Attachment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="file" id="modal-attachment" accept="image/*" class="form-control">
+                    </div>
+                    <div id="modal-preview" class="mb-2"></div> <!-- HEADER -->
+
+                    <textarea id="modal-message" class="form-control" rows="2" placeholder="Type a message..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="modal-send-btn" class="btn btn-success">Send</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <!-- CHAT WINDOW -->
     <div id="chat-window" class="card shadow d-none">
@@ -369,21 +418,45 @@
             <button id="chat-close" class="btn bg-transparent text-white">X</button>
         </div>
 
-        <!-- THREAD LIST -->
-        <div id="thread-list"></div>
+        <!-- BODY -->
+        <div class="chat-body">
 
-        <!-- CHAT VIEW -->
-        <div id="chat-view" class="d-none">
-            <div id="chat-messages"></div>
+            <!-- LEFT: THREAD LIST -->
+            <div class="chat-threads">
+                <div id="thread-list"></div>
+            </div>
 
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" class="form-control">
-                <button id="chat-send" class="btn btn-success">
-                    <i class="bi bi-send"></i>
-                </button>
+            <!-- RIGHT: CHAT VIEW -->
+            <div class="chat-main">
+
+                <div id="chat-view" class="d-none">
+                    <div class="h-100">
+                        <div id="chat-messages"></div>
+                    </div>
+
+                    <div class="chat-input-area d-flex align-items-center gap-2 p-2 border-top">
+                        <label for="chat-image" id="chat-image-btn" class="btn btn-outline-secondary mb-0">
+                            <i class="bi bi-image"></i>
+                        </label>
+                        <input type="file" id="chat-image" accept="image/*" style="display:none">
+                        <!-- Text input -->
+                        <input type="text" id="chat-input" class="form-control" placeholder="Type a message...">
+
+
+                        <!-- Send button -->
+                        <button id="chat-send" class="btn btn-success">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+
+
+                </div>
+
             </div>
         </div>
     </div>
+
+
 
 
 
@@ -403,6 +476,8 @@
             </div>
         </div>
     </div>
+    <script src="{{ asset('js/secureFetch.js') }}"></script>
+
     {{-- support chat ends --}}
     @include('partials.loader')
 
@@ -433,44 +508,19 @@
 
     <!-- nice scrollbar -->
     <script src="{{ asset('js/perfect-scrollbar.min.js') }}"></script>
-    <script>
-        const ps = new PerfectScrollbar('#sidebar');
-    </script>
+
 
     <!-- custom js -->
-    <script src="{{ asset('js/custom.js') }}"></script>
-    <script src="{{ asset('js/chart_custom_style1.js') }}"></script>
+
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-
-            fetch('/api/me', {
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(res => {
-                    if (!res.ok) throw new Error('Unauthorized');
-                    return res.json();
-                })
-                .then(user => {
-                    console.log('Authenticated user:', user);
-
-                    // later:
-                    // document.getElementById('user-name').textContent = user.name;
-                    // window.currentUser = user;
-                })
-                .catch(err => {
-                    console.error('Auth user fetch failed:', err);
-                });
-
-
-
             const logoutLink = document.querySelector('#logout');
 
             if (!logoutLink) return;
 
             logoutLink.addEventListener('click', function(e) {
+                Loader.show();
                 e.preventDefault();
 
                 const token = localStorage.getItem('sanctum_token');
@@ -479,12 +529,13 @@
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
                         }
                     })
                     .then(res => {
                         if (!res.ok) throw new Error('Logout failed');
                         localStorage.removeItem('sanctum_token');
+                        Loader.hide();
                         window.location.href = '/';
                     })
                     .catch(err => console.error(err));
@@ -492,17 +543,17 @@
 
         });
     </script>
+
     {{-- supoprt script --}}
     <script>
         // --- AUTH USER DATA ----
-        let AUTH_USER_ID = null;
-        const token = localStorage.getItem('sanctum_token');
+        let AUTH_USER = null;
 
         async function fetchAuthUser() {
             const res = await fetch('/api/me', {
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': 'Bearer ' + token
+                    'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
                 }
             });
 
@@ -511,21 +562,41 @@
                 return;
             }
 
-            const data = await res.json();
-            AUTH_USER_ID = data.id;
-            AUTH_USER_NAME = data.name;
-            AUTH_COMPANY_ID = data.company_id;
+            const AUTH_USER = await res.json();
+            console.log(AUTH_USER);
+            const userNameElems = document.querySelectorAll('.user_name_ytxf');
+            const userAvatarElems = document.querySelectorAll('.user_img_yxwz');
+            if (userNameElems.length) {
+                userNameElems.forEach(elem => {
+                    elem.textContent = AUTH_USER.name;
+                });
+            }
+            if (userAvatarElems.length && AUTH_USER.profile_image) {
+                userAvatarElems.forEach(elem => {
+                    elem.src = '/' + AUTH_USER.profile_image;
+                });
+            }
+            window.AUTH_USER_ID = AUTH_USER.id;
+            window.AUTH_USER = AUTH_USER;
+
+
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            Loader.show();
+
             initChat();
+
+
         });
 
+
         async function initChat() {
+
             await fetchAuthUser();
 
             if (!AUTH_USER_ID) {
-                console.error('Auth user not loaded');
+                console.error('Auth user not loaded'.AUTH_USER, AUTH_USER_ID);
                 return;
             }
             const chatToggle = document.getElementById('chat-toggle');
@@ -547,13 +618,91 @@
             let lastMessageTime = null; // track last message timestamp for polling
             let isChatOpen = false;
 
+            // --- IMAGE UPLOAD ---
+            const chatImageBtn = document.getElementById('chat-image-btn');
+            const chatImageInput = document.getElementById('chat-image');
+            const attachmentModal = new bootstrap.Modal(document.getElementById('attachmentModal'));
+            const modalAttachment = document.getElementById('modal-attachment');
+            const modalMessage = document.getElementById('modal-message');
+            const modalSendBtn = document.getElementById('modal-send-btn');
+            const modalPreview = document.getElementById('modal-preview');
 
-            await fetchAuthUser();
+            // When user clicks image icon, trigger the hidden file input
+            chatImageBtn.addEventListener('click', () => {
+                // chatImageInput.click();
+            });
 
-            if (!AUTH_USER_ID) {
-                console.error('Auth user not loaded');
-                return;
-            }
+            // When user selects file from chat input, show modal and set file to modal
+            chatImageInput.addEventListener('change', () => {
+                const file = chatImageInput.files[0];
+                if (!file) return;
+
+                // Reset modal fields
+                modalAttachment.value = '';
+                modalMessage.value = '';
+                modalPreview.innerHTML = '';
+
+                // Show modal manually
+                attachmentModal.show();
+
+                // Copy the selected file to modal input
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                modalAttachment.files = dataTransfer.files;
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    modalPreview.innerHTML =
+                        `<img src="${e.target.result}" style="max-width:100%; border-radius:6px; display:block; margin-bottom:5px;">`;
+                };
+                reader.readAsDataURL(file);
+            });
+
+
+
+            modalSendBtn.addEventListener('click', async () => {
+                if (!activeThread) return;
+
+                const text = modalMessage.value.trim();
+                const file = modalAttachment.files[0];
+
+                if (!text && !file) {
+                    alert('Please type a message or select a file.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('message', text || '');
+                if (file) formData.append('attachment', file);
+
+                try {
+                    const res = await fetch(`/api/support/reply/${activeThread}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    });
+
+                    const data = await res.json();
+                    if (data.success) {
+                        modalAttachment.value = '';
+                        modalMessage.value = '';
+                        modalPreview.innerHTML = '';
+                        attachmentModal.hide();
+                        loadMessages();
+                    } else {
+                        alert('Failed to send message.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Error sending message.');
+                }
+            });
+
+            // IMAGE UPLOAD END
 
             // --- CHAT TOGGLE ---
             chatToggle.onclick = () => {
@@ -568,6 +717,8 @@
             chatClose.onclick = () => chatWindow.classList.add('d-none');
             chatNew.onclick = () => modal.show();
 
+
+
             // --- CREATE NEW THREAD ---
             document.getElementById('create-thread-btn').onclick = () => {
                 const title = document.getElementById('thread-title').value;
@@ -577,7 +728,7 @@
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token,
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
@@ -593,37 +744,11 @@
             };
 
             // --- FETCH THREADS ---
-            // function fetchThreads() {
-            //     fetch('/api/support/threads', {
-            //             headers: {
-            //                 'Accept': 'application/json',
-            //                 'Authorization': 'Bearer ' + token
-            //             }
-            //         })
-            //         .then(res => res.json())
-            //         .then(data => {
-            //             threadList.innerHTML = '';
-            //             chatView.classList.add('d-none');
-            //             lastMessageTime = null; // reset for new thread
-
-            //             data.forEach(thread => {
-            //                 const div = document.createElement('div');
-            //                 div.className = 'thread-item';
-            //                 div.innerHTML = `
-        //         <div class="thread-title">${thread.title}</div>
-        //         <div class="thread-sub">Tap to open conversation</div>
-        //     `;
-            //                 div.onclick = () => openThread(thread.id, div);
-            //                 threadList.appendChild(div);
-            //             });
-            //         });
-            // }
-
             function fetchThreads() {
                 fetch('/api/support/threads', {
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
                         }
                     })
                     .then(res => res.json())
@@ -666,7 +791,7 @@
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token,
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
                             'Content-Type': 'application/json'
                         }
                     })
@@ -683,7 +808,10 @@
 
 
             // --- OPEN THREAD ---
-            function openThread(threadId) {
+            function openThread(threadId, div) {
+                document.querySelectorAll('.thread-item').forEach(t => t.classList.remove('active'));
+                div.classList.add('active');
+
                 activeThread = threadId;
                 chatView.classList.remove('d-none');
                 loadedMessageIds.clear();
@@ -695,60 +823,7 @@
                 startPolling(); // start auto-update
             }
 
-            // --- LOAD MESSAGES ---
-
-
-            //     function loadMessages() {
-            //         if (!activeThread) return;
-
-            //         let url = `/api/support/threads/${activeThread}`;
-            //         if (lastMessageTime) {
-            //             url += `?after=${lastMessageTime}`;
-            //         }
-
-            //         fetch(url, {
-            //                 headers: {
-            //                     'Accept': 'application/json',
-            //                     'Authorization': 'Bearer ' + token
-            //                 }
-            //             })
-            //             .then(res => res.json())
-            //             .then(data => {
-            //                 if (!data.length) return;
-
-            //                 data.forEach(msg => appendMessage(msg));
-
-            //                 lastMessageTime = data[data.length - 1].created_at;
-
-            //                 chatMessages.scrollTop = chatMessages.scrollHeight;
-            //             });
-            //     }
-
-            //     // --- APPEND MESSAGE ---
-            //     function appendMessage(msg) {
-            //         const row = document.createElement('div');
-            //         row.className = 'message-row ' + (msg.sender_type === 'user' ? 'user' : 'support');
-
-            //         const bubble = document.createElement('div');
-            //         bubble.className = 'message ' + (msg.sender_type === 'user' ? 'user' : 'support');
-
-            //         const time = new Date(msg.created_at).toLocaleTimeString([], {
-            //             hour: '2-digit',
-            //             minute: '2-digit'
-            //         });
-
-            //         bubble.innerHTML = `
-        //     <div>${msg.message}</div>
-        //     <div class="message-meta">
-        //         <span>${time}</span>
-        //         ${msg.sender_type === 'user' ? '<span class="tick">✓✓</span>' : ''}
-        //     </div>
-        // `;
-
-            //         row.appendChild(bubble);
-            //         chatMessages.appendChild(row);
-            //     }
-
+            // --- APPEND MESSAGE ---
             function appendMessage(msg) {
                 const isMine = msg.sender_id === AUTH_USER_ID;
 
@@ -763,8 +838,15 @@
                     minute: '2-digit'
                 });
 
+                let content = '';
+                if (msg.message) content += `<div>${msg.message}</div>`;
+                if (msg.attachment) {
+                    content +=
+                        `<div><img src="${msg.attachment}" style="max-width:200px; display:block; margin-top:5px; border-radius:6px;"></div>`;
+                }
+
                 bubble.innerHTML = `
-        <div>${msg.message}</div>
+        ${content}
         <div class="message-meta">
             <span>${time}</span>
             ${isMine ? '<span class="tick">✓✓</span>' : ''}
@@ -774,6 +856,9 @@
                 row.appendChild(bubble);
                 chatMessages.appendChild(row);
             }
+
+
+
 
 
 
@@ -788,7 +873,7 @@
                 fetch(url, {
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
                         }
                     })
                     .then(res => res.json())
@@ -818,7 +903,7 @@
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + token,
+                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
@@ -869,9 +954,6 @@
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }
             }
-
-
-
         };
     </script>
     <script>
@@ -895,6 +977,21 @@
                     }
                 }
             });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('sidebarCollapse').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+        });
+    </script>
+    <script>
+        Loader.show();
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                Loader.hide();
+            }, 4000);
         });
     </script>
 </body>

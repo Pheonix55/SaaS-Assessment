@@ -95,8 +95,15 @@ class SupportMessagesController extends Controller
     public function supportReply(Request $request, $thread)
     {
         $request->validate([
-            'message' => 'required|string|max:1000',
+            'message' => 'nullable|string|max:1000',
+            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:5120',
         ]);
+
+        $attachmentPath = null;
+        if ($request->hasFile('attachment')) {
+            $attachmentPath = $request->file('attachment')->store('support_attachments', 'public');
+            $attachmentPath = asset('storage/'.$attachmentPath);
+        }
 
         $thread = SupportThread::where('id', $thread)
             ->where('company_id', $request->user()->company_id)
@@ -106,6 +113,7 @@ class SupportMessagesController extends Controller
             'sender_id' => $request->user()->id,
             'sender_type' => $request->user()->role,
             'message' => $request->message,
+            'attachment' => $attachmentPath,
         ]);
     }
 

@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\CompanyStatus;
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use App\Models\{Company, User};
+use Spatie\Permission\PermissionRegistrar;
 
 class CreateSuperAdmin extends Command
 {
@@ -22,7 +25,6 @@ class CreateSuperAdmin extends Command
         $email = $this->argument('email');
         $password = $this->argument('password');
         $companyName = $this->argument('company_name') ?? $name.' Company';
-        // only one super admin allowed to create via command
         if (User::where('role', 'SUPER_ADMIN')->exists()) {
             return 1;
         }
@@ -36,6 +38,7 @@ class CreateSuperAdmin extends Command
             'name' => $companyName,
             'email' => $email,
             'password' => Hash::make($password),
+            'status' => CompanyStatus::ACTIVE,
         ]);
 
         $user = User::create([
@@ -45,7 +48,9 @@ class CreateSuperAdmin extends Command
             'company_id' => $company->id,
             'role' => 'SUPER_ADMIN',
         ]);
+        app(PermissionRegistrar::class)->setPermissionsTeamId($companyId);
 
+        $user->assignRole('SUPER_ADMIN');
         $this->info("Super admin '{$name}' created successfully!");
         $this->info("Company '{$companyName}' created with ID: {$company->id}");
         $this->info("Email: {$email} | Password: {$password}");

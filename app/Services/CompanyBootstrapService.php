@@ -2,7 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\{Company, Role};
+use App\Models\Company;
+use Spatie\Permission\Models\Role;
 
 class CompanyBootstrapService
 {
@@ -25,12 +26,5 @@ class CompanyBootstrapService
         }
     }
 
-    // protected function createDefaultSettings(Company $company): void
-    // {
-    //     Setting::firstOrCreate([
-    //         'company_id' => $company->id,
-    //         'key' => 'timezone',
-    //         'value' => 'UTC',
-    //     ]);
-    // }
+    
 }

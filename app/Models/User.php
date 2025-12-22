@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -60,10 +61,14 @@ class User extends Authenticatable
         return $this->belongsTo(Company::class);
     }
 
-    public function hasRole($role)
-    {
-        return $this->role === $role;
-    }
+    // public function hasRole($role)
+    // {
+    //     if ($this->role = 'SUPER_ADMIN') {
+    //         return true;
+    //     }
+
+    //     return $this->role === $role;
+    // }
 
     // public function messages()
     // {
@@ -73,5 +78,37 @@ class User extends Authenticatable
     public function userMessages($thread_id)
     {
         return SupportMessage::with('supportThread')->where('support_thread_id', $thread_id)->get();
+    }
+
+    /**
+     * Check if the user has a role in a specific company/team context
+     *
+     * @param  string|array  $roleNames
+     */
+    public function hasRoleInCompany($roleNames, ?int $companyId = null, ?string $guardName = null): bool
+    {
+        $companyId = $companyId ?? $this->company_id;
+        $guardName = $guardName ?? 'web';
+
+        // set team context
+        app(\Spatie\Permission\PermissionRegistrar::class)
+            ->setPermissionsTeamId($companyId);
+
+        $userRoles = $this->roles()->get();
+
+        $roleNames = is_array($roleNames) ? $roleNames : [$roleNames];
+
+        foreach ($roleNames as $roleName) {
+            $role = \Spatie\Permission\Models\Role::where('name', $roleName)
+                ->where('guard_name', $guardName)
+                ->where('company_id', $companyId)
+                ->first();
+
+            if ($role && $userRoles->contains('id', $role->id)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

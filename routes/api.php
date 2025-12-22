@@ -1,24 +1,25 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CompanyController;
-use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\InvitationController;
-use App\Http\Controllers\Api\PlanController;
-use App\Http\Controllers\Api\RoleController;
-use App\Http\Controllers\Api\SubscriptionController;
-use App\Http\Controllers\Api\SupportMessagesController;
-use App\Http\Middleware\CheckCompanyId;
-use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\{AuthController, CompanyController, DashboardController, InvitationController, PlanController, RoleController, StripeProductController, SubscriptionController, SuperAdminController, SupportMessagesController};
+use App\Http\Middleware\{CheckCompanyId, CheckRole};
 
 Route::post('/user/register', [AuthController::class, 'register']);
 Route::post('/register', [AuthController::class, 'CompanyRegister']);
-Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':admin'])->group(function () {
-
+Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':SUPER_ADMIN'])->prefix('superadmin')->group(function () {
     Route::post('/create/super-admin', [AdminController::class, 'createSuperAdmin']);
+    
+    Route::get('/dashboard/data', [SuperAdminController::class, 'getDashboardData']);
+
+    Route::get('/approve-company/{id}', [SuperAdminController::class, 'approveCompany']);
+    Route::get('/list-approvals', [SuperAdminController::class, 'listApprovals']);
+
+    // manage-plans
+    Route::get('stripe/products', [StripeProductController::class, 'index']);
+    Route::post('stripe/products', [StripeProductController::class, 'store']);
+    Route::put('stripe/products/{plan}', [StripeProductController::class, 'update']);
+    Route::delete('stripe/products/{plan}', [StripeProductController::class, 'destroy']);
 
 });
 
@@ -30,10 +31,6 @@ Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':adm
 
     // admin only routes
     Route::get('/admin/users', [CompanyController::class, 'getAllUsers']);
-    Route::get('/admin/getSubscriptionInfo/{id}', [SubscriptionController::class, 'getSubscriptionInfo']);
-    Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
-    Route::post('/admin/plans/{id}', [SubscriptionController::class, 'cancelSubscription']);
-    Route::get('/admin/getActiveSubscriptionInfo/{id}', [SubscriptionController::class, 'getActiveSubscriptionInfo']);
 
     // plan crud routes
     Route::get('/admin/plans', [PlanController::class, 'getAllPlans']);
@@ -50,10 +47,18 @@ Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':adm
     Route::get('/subscription/events', [SubscriptionController::class, 'getSubscriptionEvents']);
 });
 // support routes
-Route::middleware(['auth:sanctum', CheckCompanyId::class])->group(function () {});
+Route::middleware(['auth:sanctum'])->group(function () {
+
+    Route::get('/me', [AuthController::class, 'getAuthUser']);
+    Route::get('/admin/getSubscriptionInfo/{id}', [SubscriptionController::class, 'getSubscriptionInfo']);
+    Route::post('/subscribe', [SubscriptionController::class, 'subscribe']);
+    Route::post('/admin/plans/{id}', [SubscriptionController::class, 'cancelSubscription']);
+    Route::get('/admin/getActiveSubscriptionInfo/{id}', [SubscriptionController::class, 'getActiveSubscriptionInfo']);
+    Route::get('/get/plans/subscriptions', [DashboardController::class, 'getPlansSubscriptions']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 // User routes
 Route::middleware(['auth:sanctum', CheckCompanyId::class])->group(function () {
-    Route::get('/get/plans/subscriptions', [DashboardController::class, 'getPlansSubscriptions']);
     Route::get('/list/roles', [RoleController::class, 'listRoles']);
 
     Route::post('/support/threads', [SupportMessagesController::class, 'supportThread']);
@@ -62,13 +67,19 @@ Route::middleware(['auth:sanctum', CheckCompanyId::class])->group(function () {
     Route::post('/support/reply/{thread}', [SupportMessagesController::class, 'supportReply']);
     Route::post('/support/threads/{thread}/close', [SupportMessagesController::class, 'closeThread']);
 
-    Route::get('/me', [AuthController::class, 'getAuthUser']);
-    Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::get('/profile', [AuthController::class, 'GetUserProfile']);
 
 });
 
-Route::get('/invite-accept/{token}', [InvitationController::class, 'acceptInvite'])->name('invite-accept');
+Route::post('/invite-accept/{token}', [InvitationController::class, 'registerAndAcceptInvite'])
+    ->name('invite-accept.submit');
 Route::get('/invoices/{invoiceId}/download/{plan_id}', [SubscriptionController::class, 'download'])
     ->name('download.invoice');
+Route::middleware([
+    'auth:sanctum', CheckCompanyId::class,
+])->get('/test/check-role/{role}', function ($role) {
+    return response()->json([
+        'has_role' => auth()->user()->hasRole($role),
+    ]);
+});

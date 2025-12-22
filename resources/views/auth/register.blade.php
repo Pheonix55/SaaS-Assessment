@@ -35,18 +35,25 @@
                                 <input type="text" name="website" placeholder="Company Website" required />
                             </div>
 
-                            <div class="field ">
-                                <label class="label_field">Email</label>
-                                <input type="email" name="email" placeholder="Email Address" required />
+                            <div class="field d-flex">
+                                <label class="label_field" for="email">Email</label>
+                                <div class="auth-input-group no-border d-flex justify-content-between align-items-center">
+                                    <input type="email" name="email" id="email" placeholder="E-mail" required
+                                        autocomplete="true" />
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
                             </div>
-
-                            <div class="field ">
+                            <div class="field d-flex">
                                 <label class="label_field">Password</label>
-                                <input type="password" name="password" placeholder="Password" required />
+                                <div class="auth-input-group no-border d-flex justify-content-between align-items-center">
+                                    <input type="password" name="password" id="password" placeholder="Password" required />
+                                    <i class="fa-solid fa-eye toggle-password" style="cursor:pointer;"></i>
+                                </div>
                             </div>
 
                             <div class="field ">
                                 <label class="label_field">Confirm Password</label>
+
                                 <input type="password" name="password_confirmation" placeholder="Confirm Password"
                                     required />
                             </div>
@@ -73,7 +80,8 @@
             const formData = new FormData(this);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            Loader.show();
+            const urlParams = new URLSearchParams(window.location.search);
+            const invitationToken = urlParams.get('token');
 
             fetch("{{ url('api/register') }}", {
                     method: "POST",
@@ -84,21 +92,50 @@
                     body: formData
                 })
                 .then(res => res.json())
-                .then(data => {
+                .then(async data => {
                     Loader.hide();
 
-                    if (data.success) {
-                        alert('Registration successful');
-                        window.location.href = "{{ url('/') }}";
-                    } else {
+                    if (!data.success) {
                         alert(data.message || 'Registration failed');
+                        return;
                     }
+
+                    alert('Registration successful');
+                    window.location.href = "{{ url('/') }}";
+
                 })
                 .catch(err => {
-                    // Loader.hide();
+                    Loader.hide();
                     console.error(err);
                     alert('An unexpected error occurred');
                 });
+
+            Loader.show();
+
+            // fetch("{{ url('api/register') }}", {
+            // method: "POST",
+            // headers: {
+            // 'X-CSRF-TOKEN': token,
+            // 'Accept': 'application/json'
+            // },
+            // body: formData
+            // })
+            // .then(res => res.json())
+            // .then(data => {
+            // Loader.hide();
+
+            // if (data.success) {
+            // alert('Registration successful');
+            // window.location.href = "{{ url('/') }}";
+            // } else {
+            // alert(data.message || 'Registration failed');
+            // }
+            // })
+            // .catch(err => {
+            // // Loader.hide();
+            // console.error(err);
+            // alert('An unexpected error occurred');
+            // });
         });
     </script>
 @endsection

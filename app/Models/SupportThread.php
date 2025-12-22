@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SupportThread extends Model
 {
     protected $fillable = [
-        'title', 'discription', 'user_id', 'company_id','status'
+        'title', 'discription', 'user_id', 'company_id','status','attachment'
     ];
 
     public function messages()

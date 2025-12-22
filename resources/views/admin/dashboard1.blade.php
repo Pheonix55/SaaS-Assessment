@@ -3,6 +3,11 @@
     <div class="midde_cont py-4">
         <div class="container-fluid">
             <div class="row">
+                <div class="alert alert-info col-md-12 d-none" id="showCompanyApproval" role="alert">
+                </div>
+                <!-- Buttons for testing -->
+
+
                 <!-- Users Table -->
                 <div class="col-md-6">
                     <div class="white_shd full margin_bottom_30">
@@ -22,7 +27,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Users will be appended here -->
+                                        <td colspan="7" class="text-center">no users yet</td>
+
                                     </tbody>
                                 </table>
                             </div>
@@ -58,7 +64,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td colspan="7" class="text-center">Loading...</td>
+                                            <td colspan="7" class="text-center">no invitations</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -126,7 +132,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Transactions will be appended here -->
+                                        <td colspan="7" class="text-center">no subscription data availible</td>
+
                                     </tbody>
                                 </table>
                             </div>
@@ -157,7 +164,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- Transactions will be appended here -->
+                                        <td colspan="7" class="text-center">no transactions made yet</td>
+
                                     </tbody>
                                 </table>
                             </div>
@@ -178,18 +186,23 @@
                 window.location.href = '/login';
                 return;
             }
+
             Loader.show();
 
-            // Fetch users
             async function fetchUsers(page = 1) {
                 try {
-                    const res = await fetch(`/api/users?page=${page}`, {
+                    const data = await secureFetch(`/api/users?page=${page}`, {
                         headers: {
-                            'Authorization': 'Bearer ' + token,
-                            'Accept': 'application/json'
+                            'Authorization': 'Bearer ' + token
                         }
                     });
-                    const data = await res.json();
+                    if (!data) {
+                        showSweetAlert({
+                            message: 'You are not approved by the system yet',
+                            icon: 'warning'
+                        });
+                        return;
+                    }
 
                     if (data.success) {
                         const tbody = document.querySelector('#users-table tbody');
@@ -208,7 +221,10 @@
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('Error fetching users.');
+                    showSweetAlert({
+                        message: 'Error fetching users.',
+                        icon: 'error'
+                    });
                 }
             }
 
@@ -225,55 +241,55 @@
                 }
             }
 
-
-            // Fetch transactions
             async function fetchTransactions() {
                 try {
-                    const res = await fetch('/api/admin/get-transactions', {
+                    const data = await secureFetch('/api/admin/get-transactions', {
                         headers: {
-                            'Authorization': 'Bearer ' + token,
-                            'Accept': 'application/json'
+                            'Authorization': 'Bearer ' + token
                         }
                     });
-
-                    const data = await res.json();
+                    if (!data) return;
 
                     if (data.success) {
                         const tbody = document.querySelector('#transactions-table tbody');
                         tbody.innerHTML = '';
-
                         data.data.forEach(tx => {
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
-                    <td>${tx.id}</td>
-                    <td>${tx.amount ?? '-'}</td>
-                    <td>${tx.currency ?? '-'}</td>
-                    <td>${'Stripe-visa'}</td>
-                    <td>${new Date(tx.created_at).toLocaleString()}</td>
-                    <td><a class="btn btn-outline-success" id="download-invoice" href="${tx.temp_invoice_url}">download invoice</button></td>
-
-                `;
+                        <td>${tx.id}</td>
+                        <td>${tx.amount ?? '-'}</td>
+                        <td>${tx.currency ?? '-'}</td>
+                        <td>Stripe-visa</td>
+                        <td>${new Date(tx.created_at).toLocaleString()}</td>
+                        <td>
+                            <a class="btn btn-outline-success" href="${tx.temp_invoice_url}">Download Invoice</a>
+                        </td>
+                    `;
                             tbody.appendChild(tr);
                         });
                     } else {
-                        alert(data.message || 'Failed to load transactions.');
+                        showSweetAlert({
+                            message: data.message || 'Failed to load transactions.',
+                            icon: 'error'
+                        });
                     }
                 } catch (err) {
                     console.error(err);
-                    alert('Error fetching transactions.');
+                    showSweetAlert({
+                        message: 'Error fetching transactions.',
+                        icon: 'error'
+                    });
                 }
             }
-            // Load roles
+
             async function loadRoles() {
                 try {
-                    const res = await fetch("{{ url('/api/list/roles') }}", {
+                    const data = await secureFetch("{{ url('/api/list/roles') }}", {
                         headers: {
-                            'Accept': 'application/json',
                             'Authorization': 'Bearer ' + token
                         }
                     });
-                    const data = await res.json();
-                    if (!res.ok) throw new Error('Failed to load roles');
+                    if (!data) return;
 
                     const select = document.getElementById('role-select');
                     data.roles.forEach(role => {
@@ -287,17 +303,14 @@
                 }
             }
 
-            // Load invitations
             async function loadInvitations() {
                 try {
-                    const res = await fetch("{{ url('/api/admin/get-invitations') }}", {
+                    const data = await secureFetch("{{ url('/api/admin/get-invitations') }}", {
                         headers: {
-                            'Accept': 'application/json',
                             'Authorization': 'Bearer ' + token
                         }
                     });
-                    const data = await res.json();
-                    if (!data.success) throw data;
+                    if (!data) return;
 
                     const tbody = document.querySelector('#invitations-table tbody');
                     tbody.innerHTML = '';
@@ -310,37 +323,36 @@
 
                     data.data.forEach((invite, index) => {
                         tbody.insertAdjacentHTML('beforeend', `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${invite.email}</td>
-                    <td>${invite.new_role ?? '-'}</td>
-                    <td>${invite.inviter?.name ?? '-'}</td>
-                    <td>${invite.company?.name ?? '-'}</td>
-                    <td><span class="badge bg-${statusColor(invite.status)}">${invite.status}</span></td>
-                    <td>${formatDate(invite.expiry_date)}</td>
-                </tr>
-            `);
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${invite.email}</td>
+                        <td>${invite.new_role ?? '-'}</td>
+                        <td>${invite.inviter?.name ?? '-'}</td>
+                        <td>${invite.company?.name ?? '-'}</td>
+                        <td><span class="badge bg-${statusColor(invite.status)}">${invite.status}</span></td>
+                        <td>${formatDate(invite.expiry_date)}</td>
+                    </tr>
+                `);
                     });
-
                 } catch (err) {
-                    if (err.message === 'company id doesnt exist') alert('Company not found');
-                    else console.error(err);
+                    if (err.message === 'company id doesnt exist') {
+                        showSweetAlert({
+                            message: 'Company not found',
+                            icon: 'warning'
+                        });
+                    } else console.error(err);
                 }
             }
-            fetchUsers();
-            // fetchInvites();
-            fetchTransactions();
 
+            fetchUsers();
+            fetchTransactions();
             loadRoles();
             loadInvitations();
             Loader.hide();
 
-            // Open modal
             document.getElementById('open-invite-btn').addEventListener('click', () => {
                 new bootstrap.Modal(document.getElementById('inviteModal')).show();
             });
-
-            // Invite form submission
 
             document.getElementById('invite-form').addEventListener('submit', async (e) => {
                 Loader.show();
@@ -351,23 +363,24 @@
                 const formData = new FormData(form);
 
                 try {
-                    const res = await fetch("{{ url('/api/invite-user') }}", {
+                    const data = await secureFetch("{{ url('/api/invite-user') }}", {
                         method: 'POST',
                         headers: {
-                            'Accept': 'application/json',
                             'Authorization': 'Bearer ' + token,
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: formData
                     });
+                    if (!data) return;
 
-                    const data = await res.json();
-                    if (!res.ok) throw data;
                     Loader.hide();
-                    alert(data.message);
+                    showSweetAlert({
+                        message: data.message,
+                        icon: 'success'
+                    });
                     form.reset();
                     bootstrap.Modal.getInstance(document.getElementById('inviteModal')).hide();
-                    loadInvitations(); // Refresh table
+                    loadInvitations();
                 } catch (err) {
                     if (err.errors) {
                         if (err.errors.email) document.getElementById('email-error').innerText = err
@@ -378,71 +391,64 @@
                     if (err.message === 'Unauthorized') window.location.href = '/';
                 }
             });
-        });
 
-
-
-        // Helpers
-        function statusColor(status) {
-            switch (status) {
-                case 'pending':
-                    return 'warning';
-                case 'accepted':
-                    return 'success';
-                case 'expired':
-                    return 'secondary';
-                case 'rejected':
-                    return 'danger';
-                default:
-                    return 'light';
+            // Helpers
+            function statusColor(status) {
+                switch (status) {
+                    case 'pending':
+                        return 'warning';
+                    case 'accepted':
+                        return 'success';
+                    case 'expired':
+                        return 'secondary';
+                    case 'rejected':
+                        return 'danger';
+                    default:
+                        return 'light';
+                }
             }
-        }
 
-        function formatDate(date) {
-            return date ? new Date(date).toLocaleDateString() : '-';
-        }
+            function formatDate(date) {
+                return date ? new Date(date).toLocaleDateString() : '-';
+            }
 
-        function clearErrors() {
-            document.getElementById('email-error').innerText = '';
-            document.getElementById('role-error').innerText = '';
-        }
-    </script>
-    <script>
-        const token = localStorage.getItem('sanctum_token');
+            function clearErrors() {
+                document.getElementById('email-error').innerText = '';
+                document.getElementById('role-error').innerText = '';
+            }
+        });
 
         async function loadSubscriptionEvents() {
             try {
-                const res = await fetch('/api/subscription/events', {
+                const data = await secureFetch('/api/subscription/events', {
                     headers: {
-                        'Accept': 'application/json',
-                        'Authorization': 'Bearer ' + token
+                        'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
                     }
                 });
+                if (!data) return;
 
-                if (!res.ok) throw new Error('Failed to fetch subscription events');
-
-                const events = await res.json();
                 const tbody = document.querySelector('#subscription-events-table tbody');
                 tbody.innerHTML = '';
 
-                events.forEach(event => {
+                data.forEach(event => {
                     const tr = document.createElement('tr');
-
                     tr.innerHTML = `
                 <td>${event.id}</td>
                 <td>${event.type ?? '-'}</td>
                 <td>${event.created_at}</td>
-                <td>
-                    ${event.invoice_url ? `<a href="${event.invoice_url}" target="_blank" class="btn btn-sm btn-primary">Download Invoice</a>` : '-'}
+                <td>${event.invoice_url 
+                    ? `<a href="${event.invoice_url}" target="_blank" class="btn btn-sm btn-primary">Download Invoice</a>` 
+                    : '-'}
                 </td>
             `;
-
                     tbody.appendChild(tr);
                 });
-
             } catch (err) {
                 console.error(err);
-                alert('Unable to load subscription events.');
+                showSweetAlert({
+                    message: 'Unable to load subscription events.',
+                    icon: 'error'
+                });
             }
         }
 

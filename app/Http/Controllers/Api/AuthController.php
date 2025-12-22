@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\{JsonResponse, Request};
-use Illuminate\Support\Facades\{Auth, Hash};
+use Illuminate\Support\Facades\{Auth, DB, Hash};
+use App\Enums\CompanyStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\{LoginRequest, RegisterRequest};
-use App\Models\{Company, Role, User};
-use Exception;
+use App\Models\{Company, Invitation, User};
+use Spatie\Permission\PermissionRegistrar;
 
 class AuthController extends Controller
 {
@@ -28,6 +29,8 @@ class AuthController extends Controller
             'id' => $request->user()->id,
             'name' => $request->user()->name,
             'company_id' => $request->user()->company_id,
+            'email' => $request->user()->email,
+            'profile_image' => $request->user()->profile_image,
         ]);
     }
 
@@ -35,57 +38,139 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
 
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::guard('web')->attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials',
             ], 401);
         }
 
-        $user = Auth::user();
+        $request->session()->regenerate();
+
+        /** @var \App\Models\User $user */
+        $user = Auth::guard('web')->user();
+
         $token = $user->createToken('api_token')->plainTextToken;
+
+        $company = $user->company;
+
+        $redirect = route('login'); // default
+
+        if ($company) {
+            if ($user->hasRoleInCompany('SUPER_ADMIN', $company->id, 'web')) {
+                $redirect = route('superadmin.dashboard');
+            } elseif ($user->hasRoleInCompany('admin', $company->id, 'web')) {
+                $redirect = route('admin.dashboard');
+            } elseif ($user->hasRoleInCompany(['user', 'support'], $company->id, 'web')) {
+                $redirect = route('user.dashboard');
+            }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'User is not associated with a company',
+            ], 403);
+        }
 
         return response()->json([
             'success' => true,
             'data' => [
                 'user' => $user,
                 'token' => $token,
+                'redirect' => $redirect,
             ],
             'status' => 200,
         ]);
     }
 
-    public function register(RegisterRequest $request)
-    {
-        $data = $request->validated();
-        $data['password'] = Hash::make($data['password']);
+    // public function login(LoginRequest $request): JsonResponse
+    // {
+    //     $credentials = $request->validated();
 
-        if ($request->filled('company_id')) {
-            $data['company_id'] = $request->company_id;
-            $data['role'] = 'user';
+    //     if (! Auth::attempt($credentials)) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Invalid credentials',
+    //         ], 401);
+    //     }
 
-            $user = User::create($data);
-            // $user->assignRole('user', $request->company_id);
+    //     $user = Auth::user();
+    //     Auth::guard('web')->login($user);
+    //     $request->session()->regenerate();
+    //     $token = $user->createToken('api_token')->plainTextToken;
+    //     $redirect = route('login');
+    //     $company = $user->company;
 
-            return response()->json([
-                'success' => true,
-                'data' => $user,
-                'status' => 200,
-            ]);
-        }
-    }
+    //     if ($user->hasRoleInCompany('SUPER_ADMIN', $company->id, 'web')) {
+
+    //         $redirect = route('superadmin.dashboard');
+    //     }
+    //     if ($user->hasRoleInCompany('admin', $company->id, 'web')) {
+
+    //         $redirect = route('admin.dashboard');
+    //     }
+
+    //     if ($user->hasRoleInCompany(['user', 'support'], $company->id, 'web')) {
+    //         $redirect = route('user.dashboard');
+    //     }
+
+    //     if (! $company) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'User is not associated with a company',
+    //         ], 403);
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => [
+    //             'user' => $user,
+    //             'token' => $token,
+    //             'redirect' => $redirect,
+    //         ],
+    //         'status' => 200,
+    //     ]);
+    // }
+
+    // public function register(RegisterRequest $request)
+    // {
+    //     $data = $request->validated();
+    //     $data['password'] = Hash::make($data['password']);
+
+    //     $invitationToken = $request->query('token');
+    //     $companyId = Invitation::where('token', $invitationToken)->value('company_id');
+    //     $data['company_id'] = $companyId;
+
+    //     return DB::transaction(function () use ($data, $companyId) {
+
+    //         $user = User::create($data);
+
+    //         if ($companyId) {
+    //             app(PermissionRegistrar::class)->setPermissionsTeamId($companyId);
+
+    //             $user->assignRole('user');
+    //         }
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'data' => $user,
+    //         ], 201);
+    //     });
+    // }
 
     public function CompanyRegister(Request $request): JsonResponse
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'address' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'website' => 'nullable|string|max:255',
+        ]);
+
+        DB::beginTransaction();
+
         try {
-            $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
-                'address' => 'nullable|string|max:255',
-                'phone' => 'nullable|string|max:20',
-                'website' => 'nullable|string|max:255',
-            ]);
             $company = Company::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -93,36 +178,39 @@ class AuthController extends Controller
                 'address' => $request->address,
                 'phone' => $request->phone,
                 'website' => $request->website,
+                'status' => CompanyStatus::PENDING,
             ]);
 
-            $data = $request->only(['name', 'email', 'password']);
-            $data['company_id'] = $company->id;
-            $data['role'] = 'admin';
+            // Create admin user
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'company_id' => $company->id,
+                'role' => 'admin',
+            ]);
+            app(PermissionRegistrar::class)->setPermissionsTeamId($company->id);
 
-            // $company->newSubscription('default', $plan->price_id)
-            //     ->trialDays(7)
-            //     ->create();
-
-            $user = User::create($data);
-            $role = Role::where('name', 'admin')
-                ->where('guard_name', 'web')
-                ->where('company_id', $company->id)
-                ->first();
-            // $user->assignRole($role);
-            $user->role = $role->name;
+            $user->assignRole('admin');
+            DB::commit();
 
             return response()->json([
                 'success' => true,
+                'message' => 'Company registered successfully. Awaiting approval.',
                 'data' => [
-                    'company' => $company,
-                    'admin' => $user,
+                    'company_id' => $company->id,
+                    'status' => $company->status,
                 ],
-                'status' => 200,
-            ]);
-        } catch (Exception $e) {
-            dd($e->getMessage());
-        }
+            ], 201);
 
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration failed'.$e->getMessage(),
+            ], 500);
+        }
     }
 
     public function GetUserProfile(Request $request)
@@ -162,10 +250,20 @@ class AuthController extends Controller
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        $user = Auth::user();
-        $user->currentAccessToken()->delete();
+        /** @var \App\Models\User $user */
+        $user = $request->user(); // or Auth::guard('web')->user();
+
+        if ($user && $request->user()->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+        }
+
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json([
             'success' => true,

@@ -8,7 +8,7 @@ use Laravel\Cashier\Subscription;
 class Plan extends Model
 {
     protected $fillable=[
-        'name','price','duration','price_id'
+        'name','price','duration','price_id','stripe_product_id'
     ];
 public function subscriptions()
     {

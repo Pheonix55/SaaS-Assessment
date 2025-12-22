@@ -9,3 +9,12 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+@import "./bootstrap.min.css";
+@import "./style.css";
+@import "./responsive.css";
+@import "./color_2.css";
+@import "./bootstrap-select.css";
+@import "./perfect-scrollbar.css";
+@import "./custom.css";
+@import "./animate.css";
+@import "./flaticon.css";

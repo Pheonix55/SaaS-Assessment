@@ -2,15 +2,21 @@
 
 namespace App\Models;
 
+use App\Enums\CompanyStatus;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Cashier\{Billable, Subscription};
+use Laravel\Cashier\Billable;
+use Laravel\Cashier\Subscription;
 
 class Company extends Model
 {
     use Billable;
 
     protected $fillable = [
-        'name', 'stripe_id', 'plan_id', 'email', 'password', 'address', 'phone', 'website',
+        'name', 'stripe_id', 'plan_id', 'email', 'password', 'address', 'phone', 'website', 'status',
+    ];
+
+    protected $casts = [
+        'status' => CompanyStatus::class,
     ];
 
     public function users()
@@ -44,5 +50,15 @@ class Company extends Model
             ->where('stripe_status', 'active')
             ->latest()
             ->first();
+    }
+
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 }

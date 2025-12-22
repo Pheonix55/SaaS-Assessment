@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('support_thread_id')->nullable()->constrained('support_threads')->cascadeOnDelete();
             $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
-            $table->string('sender_type')->default('user')->only('user', 'admin');
-            $table->text('message');
+            $table->string('sender_type')->default('user')->only('user', 'support');
+            $table->text('message')->nullable();
             $table->string('attachment')->nullable();
             $table->timestamps();
         });
