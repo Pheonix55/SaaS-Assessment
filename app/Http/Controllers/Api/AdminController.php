@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Company;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Controller;
+use App\Models\{AuditLog, Company, User};
 
 class AdminController extends Controller
 {
@@ -53,6 +52,27 @@ class AdminController extends Controller
                 'id' => $company->id,
                 'name' => $company->name,
             ],
+        ]);
+    }
+
+    public function auditLogsPerCompany(Request $request)
+    {
+        $companyId = $request->user()->company_id;
+
+        if (! $companyId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Company ID not found for the user.',
+            ], 400);
+        }
+        $logs = AuditLog::with('user', 'company')->where('company_id', $companyId)
+            ->latest()
+            ->paginate(5);
+            // dd($logs,$request->user());
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
         ]);
     }
 }

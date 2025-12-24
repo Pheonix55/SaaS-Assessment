@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Hash, Mail};
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Mail\SendInvitationEmail;
 use App\Models\{Invitation, User};
-use App\Http\Requests\RegisterRequest;
 use Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\Models\Role;
+
 
 class InvitationController extends Controller
 {
@@ -130,12 +132,11 @@ class InvitationController extends Controller
         ]);
     }
 
-    public function registerAndAcceptInvite(RegisterRequest $request,$token)
+    public function registerAndAcceptInvite(RegisterRequest $request, $token)
     {
         $data = $request->validated();
         $data['password'] = Hash::make($data['password']);
-        
-        
+
         // dd($data,$token);
         $invitation = Invitation::where('token', $token)
             ->where('status', Invitation::STATUS_PENDING)
@@ -166,12 +167,18 @@ class InvitationController extends Controller
                 ]);
             } else {
                 // Create new user
-                $data['email'] = $invitation->email; // ensure user email matches invite
+                $data['email'] = $invitation->email;
                 $data['company_id'] = $invitation->company_id;
                 $user = User::create($data);
 
                 app(PermissionRegistrar::class)->setPermissionsTeamId($invitation->company_id);
-                $user->assignRole($invitation->new_role); 
+                $role = Role::firstOrCreate([
+                    'name' => $invitation->new_role,
+                    'guard_name' => 'web',
+                    'company_id' => $user->company_id,
+                ]);
+                $user->assignRole($role->name);
+
                 $previousRole = null;
             }
 

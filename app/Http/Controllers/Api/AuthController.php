@@ -6,10 +6,10 @@ use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Support\Facades\{Auth, DB, Hash};
 use App\Enums\CompanyStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\{LoginRequest, RegisterRequest};
-use App\Models\{Company, Invitation, User};
+use App\Http\Requests\LoginRequest;
+use App\Models\{Company, User};
 use Spatie\Permission\PermissionRegistrar;
-
+use Spatie\Permission\Models\Role;
 class AuthController extends Controller
 {
     public function listUser(Request $request): JsonResponse
@@ -82,81 +82,6 @@ class AuthController extends Controller
         ]);
     }
 
-    // public function login(LoginRequest $request): JsonResponse
-    // {
-    //     $credentials = $request->validated();
-
-    //     if (! Auth::attempt($credentials)) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'Invalid credentials',
-    //         ], 401);
-    //     }
-
-    //     $user = Auth::user();
-    //     Auth::guard('web')->login($user);
-    //     $request->session()->regenerate();
-    //     $token = $user->createToken('api_token')->plainTextToken;
-    //     $redirect = route('login');
-    //     $company = $user->company;
-
-    //     if ($user->hasRoleInCompany('SUPER_ADMIN', $company->id, 'web')) {
-
-    //         $redirect = route('superadmin.dashboard');
-    //     }
-    //     if ($user->hasRoleInCompany('admin', $company->id, 'web')) {
-
-    //         $redirect = route('admin.dashboard');
-    //     }
-
-    //     if ($user->hasRoleInCompany(['user', 'support'], $company->id, 'web')) {
-    //         $redirect = route('user.dashboard');
-    //     }
-
-    //     if (! $company) {
-    //         return response()->json([
-    //             'success' => false,
-    //             'message' => 'User is not associated with a company',
-    //         ], 403);
-    //     }
-
-    //     return response()->json([
-    //         'success' => true,
-    //         'data' => [
-    //             'user' => $user,
-    //             'token' => $token,
-    //             'redirect' => $redirect,
-    //         ],
-    //         'status' => 200,
-    //     ]);
-    // }
-
-    // public function register(RegisterRequest $request)
-    // {
-    //     $data = $request->validated();
-    //     $data['password'] = Hash::make($data['password']);
-
-    //     $invitationToken = $request->query('token');
-    //     $companyId = Invitation::where('token', $invitationToken)->value('company_id');
-    //     $data['company_id'] = $companyId;
-
-    //     return DB::transaction(function () use ($data, $companyId) {
-
-    //         $user = User::create($data);
-
-    //         if ($companyId) {
-    //             app(PermissionRegistrar::class)->setPermissionsTeamId($companyId);
-
-    //             $user->assignRole('user');
-    //         }
-
-    //         return response()->json([
-    //             'success' => true,
-    //             'data' => $user,
-    //         ], 201);
-    //     });
-    // }
-
     public function CompanyRegister(Request $request): JsonResponse
     {
         $request->validate([
@@ -181,7 +106,6 @@ class AuthController extends Controller
                 'status' => CompanyStatus::PENDING,
             ]);
 
-            // Create admin user
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -190,6 +114,12 @@ class AuthController extends Controller
                 'role' => 'admin',
             ]);
             app(PermissionRegistrar::class)->setPermissionsTeamId($company->id);
+
+            $role = Role::firstOrCreate([
+                'name' => 'admin',
+                'guard_name' => 'web',
+                'company_id' => $user->company_id,
+            ]);
 
             $user->assignRole('admin');
             DB::commit();

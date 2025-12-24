@@ -90,7 +90,7 @@
                     }
                 })
                 .catch(error => {
-                    Loader.hide();
+                    // Loader.hide();
                     console.error(error);
                     alert('An unexpected error occurred.');
                 });

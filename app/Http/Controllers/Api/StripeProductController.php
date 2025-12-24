@@ -91,7 +91,6 @@ class StripeProductController extends Controller
 
         try {
             return DB::transaction(function () use ($request, $plan) {
-                dd($plan->stripe_product_id);
                 // 1. Update product name in Stripe
                 Product::update($plan->stripe_product_id, [
                     'name' => $request->name,
@@ -146,7 +145,7 @@ class StripeProductController extends Controller
     {
         try {
             if ($plan->stripe_product_id) {
-                $stripeProduct = StripeProduct::retrieve($plan->stripe_product_id);
+                $stripeProduct = Product::retrieve($plan->stripe_product_id);
                 $stripeProduct->delete();
             }
 

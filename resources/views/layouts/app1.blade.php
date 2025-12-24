@@ -60,7 +60,7 @@
                 <div class="sidebar_blog_1">
                     <div class="sidebar-header">
                         <div class="logo_section">
-                            <a href="index.html"><img class="logo_icon img-responsive" src="images/logo/logo_icon.png"
+                            <a href="index.html"><img class="logo_icon img-responsive" src="../images/logo/logo.png"
                                     alt="#" /></a>
                         </div>
                     </div>
@@ -84,15 +84,8 @@
                         <li><a href="{{ route('admin.dashboard') }}"><i
                                     class="fa fa-dashboard yellow_color"></i><span>Dashboard</span></a>
                         </li>
-                        <li>
-                            <a href="#element" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle"><i
-                                    class="fa fa-diamond purple_color"></i> <span>Susbscriptions</span></a>
-                            <ul class="collapse list-unstyled" id="element">
-                                <li><a href="{{ route('subscriptions') }}">> <span>PLans</span></a></li>
-                                <li><a href="">>
-                                        <span>my Subscriptions</span></a></li>
-                                <li><a href="#">> <span>Invoice</span></a></li>
-                            </ul>
+                        <li><a href="{{ route('subscriptions') }}"><i
+                                    class="fa fa-diamond purple_color"></i><span>Subscription Plans</span></a>
                         </li>
                         <li><a href="{{ route('user.profile') }}"><i class="fa fa-cog yellow_color"></i>
                                 <span>profile</span></a>
@@ -114,7 +107,7 @@
                             <button type="button" id="sidebarCollapse" class="sidebar_toggle"><i
                                     class="fa fa-bars"></i></button>
                             <div class="logo_section">
-                                <a href="index.html"><img class="img-responsive" src="images/logo/logo.png"
+                                <a href="index.html"><img class="img-responsive" src="../images/logo/logo.png"
                                         alt="#" /></a>
                             </div>
                             <div class="right_topbar">
@@ -133,9 +126,10 @@
                                                     src="images/layout_img/user_img.jpg" alt="#" /><span
                                                     class="user_name_ytxf">John David</span></a>
                                             <div class="dropdown-menu">
-                                                <a class="dropdown-item" href="profile.html">My Profile</a>
-                                                <a class="dropdown-item" href="settings.html">Settings</a>
-                                                <a class="dropdown-item" href="help.html">Help</a>
+                                                <a class="dropdown-item" href="{{ route('user.profile') }}">My
+                                                    Profile</a>
+                                                <a class="dropdown-item" href="#">Settings</a>
+                                                {{-- <a class="dropdown-item" href="help.html">Help</a> --}}
                                                 <a class="dropdown-item" id="logout" href="#">
                                                     <span>Log Out</span> <i class="fa fa-sign-out"></i>
                                                 </a>
@@ -268,7 +262,7 @@
             position: absolute;
             bottom: 0;
             width: 100%;
-            
+
         }
 
         /* MESSAGE ROW (controls left/right alignment) */
@@ -368,7 +362,7 @@
     </style>
 
     <div id="chat-menu"
-        class="position-fixed bottom-0 start-50 translate-middle-x 
+        class="position-fixed bottom-0  
             d-flex align-items-center gap-3 px-3 py-2
             bg-white shadow rounded-pill border">
 

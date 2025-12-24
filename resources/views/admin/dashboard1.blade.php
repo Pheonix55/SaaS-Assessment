@@ -172,6 +172,37 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-12">
+                    <div class="white_shd full margin_bottom_30">
+                        <div class="full graph_head">
+                            <div class="heading1 margin_0">
+                                <h2>Audit Logs</h2>
+                            </div>
+                        </div>
+                        <div class="table_section padding_infor_info">
+                            <div class="table-responsive-sm">
+                                <table class="table table-hover" id="audit-logs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Amount</th>
+                                            <th>Currency</th>
+                                            <th>Payment Method</th>
+                                            <th>Created At</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <td colspan="7" class="text-center">nothing in the audits log</td>
+
+                                    </tbody>
+                                </table>
+                                <div class="mt-3 text-center" id="audit-pagination"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -453,5 +484,112 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadSubscriptionEvents);
+    </script>
+
+    <script>
+        const AUDIT_API = '/api/admin/audit-logs';
+        const token = localStorage.getItem('sanctum_token');
+
+        async function loadAuditLogs(page = 1) {
+            try {
+                const res = await fetch(`${AUDIT_API}?page=${page}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: 'application/json'
+                    }
+                });
+
+                const result = await res.json();
+                // console.log(result.success,result.logs.data);
+                if (!result.success) {
+                    window.showSweetAlert({
+                        title: 'Error',
+                        message: 'Failed to load audit logs',
+                        icon: 'error'
+                    });
+                    return;
+                }
+
+                const logs = result.logs.data;
+                const tbody = document.querySelector('#audit-logs-table tbody');
+                tbody.innerHTML = '';
+
+                if (!logs.length) {
+                    tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center">No audit logs found</td>
+                    </tr>
+                `;
+                    return;
+                }
+
+                logs.forEach(log => {
+                    const amount = log.new_values?.amount ?? '-';
+                    const currency = log.new_values?.currency ?? '-';
+                    const paymentMethod = log.new_values?.payment_method ?? '-';
+                    const createdAt = new Date(log.created_at).toLocaleString();
+
+                    tbody.innerHTML += `
+                    <tr>
+                        <td>${log.id}</td>
+                        <td>${amount}</td>
+                        <td>${currency.toUpperCase()}</td>
+                        <td>${paymentMethod}</td>
+                        <td>${createdAt}</td>
+                        <td>
+                            <span class="badge bg-${getActionColor(log.action)}">
+                                ${log.action.toUpperCase()}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                });
+
+                renderPagination(result.logs);
+
+            } catch (err) {
+                window.showSweetAlert({
+                    title: 'Network Error',
+                    message: err.message,
+                    icon: 'error'
+                });
+            }
+        }
+
+        function getActionColor(action) {
+            switch (action) {
+                case 'created':
+                    return 'success';
+                case 'updated':
+                    return 'warning';
+                case 'deleted':
+                    return 'danger';
+                default:
+                    return 'secondary';
+            }
+        }
+
+        function renderPagination(pagination) {
+            const container = document.getElementById('audit-pagination');
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            pagination.links.forEach(link => {
+                if (!link.url) return;
+
+                const btn = document.createElement('button');
+                btn.innerHTML = link.label;
+                btn.className = `btn btn-sm ${link.active ? 'btn-primary' : 'btn-outline-primary'} mx-1`;
+                btn.onclick = () => {
+                    const page = new URL(link.url).searchParams.get('page');
+                    loadAuditLogs(page);
+                };
+
+                container.appendChild(btn);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => loadAuditLogs());
     </script>
 @endsection

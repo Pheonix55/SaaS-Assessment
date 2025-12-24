@@ -2,17 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Company;
-use App\Models\Plan;
-use App\Models\SubscriptionEvent;
-use App\Models\Transaction;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Subscription;
-use Stripe\Invoice;
-use Stripe\PaymentIntent;
+use App\Http\Controllers\Controller;
+use App\Models\{Company, Plan, SubscriptionEvent, Transaction, User};
+use Stripe\{Invoice, PaymentIntent};
 
 class SubscriptionController extends Controller
 {
@@ -127,7 +122,7 @@ class SubscriptionController extends Controller
             $subscriptionItem = $subscription->items->first();
 
             $amount = ($subscriptionItem?->price?->unit_amount ?? ($plan->price * 100)) / 100;
-            $currency = $subscriptionItem?->price?->currency ?? 'usd';
+            $currency = $subscriptionItem?->price?->currency ?? $plan->currency ?? 'pkr';
 
             $transaction = Transaction::create([
                 'company_id' => $company->id,

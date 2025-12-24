@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Enums\CompanyStatus;
-use App\Http\Controllers\Controller;
-use App\Models\Company;
-use App\Models\Invitation;
-use App\Models\Transaction;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Cashier\Subscription;
+use App\Enums\CompanyStatus;
+use App\Http\Controllers\Controller;
+use App\Models\{AuditLog, Company, Invitation, SubscriptionEvent, Transaction, User};
 
 class SuperAdminController extends Controller
 {
@@ -20,12 +17,11 @@ class SuperAdminController extends Controller
         $pendingCompanies = Company::where('status', 'pending')->count();
         $totalUsers = User::count();
 
-        $totalRevenue = Transaction::sum('amount');
+        $totalRevenue = Transaction::where('status', 'active')->sum('amount');
         $newInvitations = Invitation::where('status', 'pending')->count();
-        $subscriptionsCount = Subscription::count();
+        $subscriptionsCount = Subscription::where('stripe_status', 'active')->count();
         $transactionsCount = Transaction::count();
 
-        // Progress Bar Section: Example plan usage or onboarding
         // $planUsage = Company::select('plan', \DB::raw('COUNT(*) as count'))
         //     ->groupBy('plan')
         //     ->get()
@@ -94,10 +90,33 @@ class SuperAdminController extends Controller
     public function listApprovals()
     {
         $companies = Company::where('status', CompanyStatus::PENDING)->latest()->paginate(10);
-        // dd($companies);
 
         return response()->json([
             'companies' => $companies,
+        ]);
+    }
+
+    public function auditLogs()
+    {
+        $logs = AuditLog::with('user', 'company')
+            ->latest()
+            ->paginate(5);
+
+        return response()->json([
+            'success' => true,
+            'logs' => $logs,
+        ]);
+    }
+
+    public function subscriptionEvents()
+    {
+        $subscriptions = SubscriptionEvent::with('user', 'company')
+            ->latest()
+            ->paginate(20);
+
+        return response()->json([
+            'success' => true,
+            'subscriptions' => $subscriptions,
         ]);
     }
 }

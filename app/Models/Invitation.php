@@ -16,7 +16,7 @@ class Invitation extends Model
     const STATUS_REVOKED  = 'revoked';
 
     protected $fillable = [
-        'email',            //user email
+        'email',            
         'invitation_from',  
         'company_id',
         'expiry_date',

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\{AuthController, CompanyController, DashboardController, InvitationController, PlanController, RoleController, StripeProductController, SubscriptionController, SuperAdminController, SupportMessagesController};
+use App\Http\Controllers\Api\{AdminController, AuthController, CompanyController, DashboardController, InvitationController, PlanController, RoleController, StripeProductController, SubscriptionController, SuperAdminController, SupportMessagesController};
 use App\Http\Middleware\{CheckCompanyId, CheckRole};
 
 Route::post('/user/register', [AuthController::class, 'register']);
@@ -9,7 +9,7 @@ Route::post('/register', [AuthController::class, 'CompanyRegister']);
 
 Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':SUPER_ADMIN'])->prefix('superadmin')->group(function () {
     Route::post('/create/super-admin', [AdminController::class, 'createSuperAdmin']);
-    
+
     Route::get('/dashboard/data', [SuperAdminController::class, 'getDashboardData']);
 
     Route::get('/approve-company/{id}', [SuperAdminController::class, 'approveCompany']);
@@ -20,6 +20,9 @@ Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':SUP
     Route::post('stripe/products', [StripeProductController::class, 'store']);
     Route::put('stripe/products/{plan}', [StripeProductController::class, 'update']);
     Route::delete('stripe/products/{plan}', [StripeProductController::class, 'destroy']);
+    // audit logs
+    Route::get('/audit-logs', [SuperAdminController::class, 'auditLogs']);
+    Route::get('/subscription-log', [SuperAdminController::class, 'subscriptionEvents']);
 
 });
 
@@ -45,6 +48,8 @@ Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':adm
     Route::get('/admin/get-transactions', [SubscriptionController::class, 'getTransactions']);
 
     Route::get('/subscription/events', [SubscriptionController::class, 'getSubscriptionEvents']);
+
+    Route::get('/admin/audit-logs', [AdminController::class, 'auditLogsPerCompany']);
 });
 // support routes
 Route::middleware(['auth:sanctum'])->group(function () {

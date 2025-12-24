@@ -1461,7 +1461,7 @@ a[data-toggle="collapse"] {
 }
 
 .fb .social_icon {
-    background: #3b5998;
+    background: #85BB65;
 }
 
 .tw .social_icon {
@@ -1489,8 +1489,7 @@ a[data-toggle="collapse"] {
 }
 
 .socile_icons .social_cont ul li {
-    float: left;
-    width: 50%;
+
     font-size: 18px;
     color: #455a64;
     line-height: 24px;

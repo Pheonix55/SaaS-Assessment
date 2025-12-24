@@ -19,10 +19,10 @@
                             </div>
                         </div>
                         <div class="counter_no">
-                            <div>
+                            <div class="d-flex g-1 justify-center align-items-start flex-column">
                                 <p class="total_no text-black" id="total-companies">0</p>
 
-                                <p class="head_couter text-black">Totla companies</p>
+                                <p class="head_couter text-black">Total companies</p>
                             </div>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
                             </div>
                         </div>
                         <div class="counter_no">
-                            <div>
+                            <div class="d-flex g-1 justify-center align-items-start flex-column">
                                 <p class="total_no text-black" id="active-companies">0</p>
                                 <p class="head_couter text-black">Active Companies</p>
                             </div>
@@ -50,7 +50,7 @@
                             </div>
                         </div>
                         <div class="counter_no">
-                            <div>
+                            <div class="d-flex g-1 justify-center align-items-start flex-column">
                                 <p class="total_no text-black" id="pending-companies">0</p>
                                 <p class="head_couter text-black">Pending Companies</p>
                             </div>
@@ -65,7 +65,7 @@
                             </div>
                         </div>
                         <div class="counter_no">
-                            <div>
+                            <div class="d-flex g-1 justify-center align-items-start flex-column">
                                 <p class="total_no text-black" id="total-users">0</p>
                                 <p class="head_couter text-black">Total Users</p>
                             </div>
@@ -77,7 +77,7 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="full socile_icons fb margin_bottom_30">
                         <div class="social_icon">
-                            <i class="fa fa-facebook"></i>
+                            <i class="fa fa-dollar"></i>
                         </div>
                         <div class="social_cont">
                             <ul>
@@ -96,7 +96,7 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="full socile_icons tw margin_bottom_30">
                         <div class="social_icon">
-                            <i class="fa fa-twitter"></i>
+                            <i class="fa fa-users"></i>
                         </div>
                         <div class="social_cont">
                             <ul>
@@ -116,7 +116,7 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="full socile_icons linked margin_bottom_30">
                         <div class="social_icon">
-                            <i class="fa fa-linkedin"></i>
+                            <i class="fa fa-credit-card"></i>
                         </div>
                         <div class="social_cont">
                             <ul>
@@ -135,7 +135,7 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="full socile_icons google_p margin_bottom_30">
                         <div class="social_icon">
-                            <i class="fa fa-google-plus"></i>
+                            <i class="fa fa-dollar"></i>
                         </div>
                         <div class="social_cont">
                             <ul>
@@ -154,7 +154,39 @@
             </div>
 
             <div class="row column3">
-                <div class="col-md-6">
+
+                <div class="col-md-12">
+                    <div class="white_shd full margin_bottom_30">
+                        <div class="full graph_head">
+                            <div class="heading1 margin_0">
+                                <h2>Audit Logs</h2>
+                            </div>
+                        </div>
+                        <div class="table_section padding_infor_info">
+                            <div class="table-responsive-sm">
+                                <table class="table table-hover" id="transactions-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Amount</th>
+                                            <th>Currency</th>
+                                            <th>Payment Method</th>
+                                            <th>Created At</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <td colspan="7" class="text-center">nothing in the audits log</td>
+
+                                    </tbody>
+                                </table>
+                                <div class="mt-3 text-center" id="audit-pagination"></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{-- <div class="col-md-6">
                     <div class="dash_blog">
                         <div class="dash_blog_inner">
                             <div class="dash_head">
@@ -206,14 +238,14 @@
                                         </span>
                                     </li>
                                 </ul> --}}
-                            </div>
+                {{-- </div>
                             <div class="read_more">
                                 <div class="center"><a class="main_bt read_bt" href="#">Read
                                         More</a></div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <!-- testimonial -->
                 {{-- <div class="col-md-6">
                     <div class="dark_bg full margin_bottom_30">
@@ -424,6 +456,18 @@
 
         @section('scripts')
             <script>
+                function formatPricePkr(num) {
+                    if (num >= 1_000_000_000) {
+                        return (num / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'B';
+                    }
+                    if (num >= 1_000_000) {
+                        return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+                    }
+                    if (num >= 1_000) {
+                        return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+                    }
+                    return num.toString();
+                }
                 async function loadDashboardData() {
                     try {
                         const res = await fetch("{{ url('/api/superadmin/dashboard/data') }}", {
@@ -442,22 +486,23 @@
                         document.getElementById('total-users').innerText = data.total_users;
 
                         // Social / stats
-                        document.getElementById('total-revenue').innerText = `$${data.total_revenue}`;
+                        revenue = formatPricePkr(data.total_revenue);
+                        document.getElementById('total-revenue').innerText = `Rs${revenue}`;
                         document.getElementById('new-invitations').innerText = data.new_invitations;
                         document.getElementById('subscriptions-count').innerText = data.subscriptions_count;
                         document.getElementById('transactions-count').innerText = data.transactions_count;
 
                         // Today tasks
-                        const tasksEl = document.getElementById('today-tasks');
-                        tasksEl.innerHTML = '';
-                        data.today_tasks.forEach(task => {
-                            tasksEl.insertAdjacentHTML('beforeend', `
-                <li>
-                    <a href="#">${task}</a><br>
-                    <strong>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
-                </li>
-            `);
-                        });
+                        //             const tasksEl = document.getElementById('today-tasks');
+                        //             tasksEl.innerHTML = '';
+                        //             data.today_tasks.forEach(task => {
+                        //                 tasksEl.insertAdjacentHTML('beforeend', `
+            //     <li>
+            //         <a href="#">${task}</a><br>
+            //         <strong>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
+            //     </li>
+            // `);
+                        //             });
 
                         // Recent updates
                         const updatesEl = document.getElementById('recent-updates');
@@ -565,5 +610,112 @@
                         button.innerText = 'Approve';
                     }
                 }
+            </script>
+
+            <script>
+                const AUDIT_API = '/api/superadmin/audit-logs';
+                const token = localStorage.getItem('sanctum_token');
+
+                async function loadAuditLogs(page = 1) {
+                    try {
+                        const res = await fetch(`${AUDIT_API}?page=${page}`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                Accept: 'application/json'
+                            }
+                        });
+
+                        const result = await res.json();
+
+                        if (!result.success) {
+                            window.showSweetAlert({
+                                title: 'Error',
+                                message: 'Failed to load audit logs',
+                                icon: 'error'
+                            });
+                            return;
+                        }
+
+                        const logs = result.logs.data;
+                        const tbody = document.querySelector('#transactions-table tbody');
+                        tbody.innerHTML = '';
+
+                        if (!logs.length) {
+                            tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center">No audit logs found</td>
+                    </tr>
+                `;
+                            return;
+                        }
+
+                        logs.forEach(log => {
+                            const amount = log.new_values?.amount ?? '-';
+                            const currency = log.new_values?.currency ?? '-';
+                            const paymentMethod = log.new_values?.payment_method ?? '-';
+                            const createdAt = new Date(log.created_at).toLocaleString();
+
+                            tbody.innerHTML += `
+                    <tr>
+                        <td>${log.id}</td>
+                        <td>${amount}</td>
+                        <td>${currency.toUpperCase()}</td>
+                        <td>${paymentMethod}</td>
+                        <td>${createdAt}</td>
+                        <td>
+                            <span class="badge bg-${getActionColor(log.action)}">
+                                ${log.action.toUpperCase()}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                        });
+
+                        renderPagination(result.logs);
+
+                    } catch (err) {
+                        window.showSweetAlert({
+                            title: 'Network Error',
+                            message: err.message,
+                            icon: 'error'
+                        });
+                    }
+                }
+
+                function getActionColor(action) {
+                    switch (action) {
+                        case 'created':
+                            return 'success';
+                        case 'updated':
+                            return 'warning';
+                        case 'deleted':
+                            return 'danger';
+                        default:
+                            return 'secondary';
+                    }
+                }
+
+                function renderPagination(pagination) {
+                    const container = document.getElementById('audit-pagination');
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    pagination.links.forEach(link => {
+                        if (!link.url) return;
+
+                        const btn = document.createElement('button');
+                        btn.innerHTML = link.label;
+                        btn.className = `btn btn-sm ${link.active ? 'btn-primary' : 'btn-outline-primary'} mx-1`;
+                        btn.onclick = () => {
+                            const page = new URL(link.url).searchParams.get('page');
+                            loadAuditLogs(page);
+                        };
+
+                        container.appendChild(btn);
+                    });
+                }
+
+                document.addEventListener('DOMContentLoaded', () => loadAuditLogs());
             </script>
         @endsection
