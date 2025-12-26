@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Laravel\Cashier\Subscription;
 use App\Enums\CompanyStatus;
 use App\Http\Controllers\Controller;
-use App\Models\{AuditLog, Company, Invitation, SubscriptionEvent, Transaction, User};
+use App\Models\{AuditLog, Company, Feature, Invitation, SubscriptionEvent, Transaction, User};
+use Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\Models\Role;
 
 class SuperAdminController extends Controller
 {
@@ -64,27 +67,49 @@ class SuperAdminController extends Controller
 
     public function approveCompany(int $id)
     {
-        $company = Company::find($id);
+        return DB::transaction(function () use ($id) {
 
-        if (! $company) {
+            $company = Company::with('owner')->lockForUpdate()->find($id);
+
+            if (! $company) {
+                abort(404, 'Company not found');
+            }
+
+            if ($company->status === CompanyStatus::ACTIVE) {
+                abort(409, 'Company is already active');
+            }
+
+            if (! $company->owner) {
+                abort(404, 'Company owner not found');
+            }
+
+            app(PermissionRegistrar::class)
+                ->setPermissionsTeamId($company->id);
+
+            $adminRole = Role::firstOrCreate([
+                'name' => 'admin',
+                'guard_name' => 'web',
+                'company_id' => $company->id,
+            ]);
+            $adminRole->syncPermissions([
+                'manage-users',
+                'invite-users',
+                'view-dashboard',
+            ]);
+            if (! $company->owner->hasRole($adminRole)) {
+                $company->owner->assignRole($adminRole);
+            }
+
+            $company->update([
+                'status' => CompanyStatus::ACTIVE,
+            ]);
+
             return response()->json([
-                'message' => 'Company not found',
-            ], 404);
-        }
-        if ($company->status === CompanyStatus::ACTIVE) {
-            return response()->json([
-                'message' => 'Company is already active',
-            ], 409);
-        }
-
-        $company->status = CompanyStatus::ACTIVE;
-        $company->save();
-
-        return response()->json([
-            'message' => 'Company approved successfully',
-            'company_id' => $company->id,
-            'status' => $company->status->value,
-        ]);
+                'message' => 'Company approved successfully',
+                'company_id' => $company->id,
+                'status' => $company->status->value,
+            ]);
+        });
     }
 
     public function listApprovals()
@@ -117,6 +142,20 @@ class SuperAdminController extends Controller
         return response()->json([
             'success' => true,
             'subscriptions' => $subscriptions,
+        ]);
+    }
+
+    public function getFeatures()
+    {
+        if (! auth()->user()->can('manage-companies')) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $features = Feature::all(); 
+
+        return response()->json([
+            'success' => true,
+            'features' => $features,
         ]);
     }
 }

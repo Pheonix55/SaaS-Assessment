@@ -18,34 +18,26 @@
     <meta name="author" content="">
     <!-- site icon -->
 
-    {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
         rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
     <!-- bootstrap css -->
-    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}" />
 
-    <!-- site css -->
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
-
-    <!-- responsive css -->
-    <link rel="stylesheet" href="{{ asset('css/responsive.css') }}" />
-
-    <!-- color css -->
-    <link rel="stylesheet" href="{{ asset('css/color_2.css') }}" />
-
-    <!-- select bootstrap -->
-    <link rel="stylesheet" href="{{ asset('css/bootstrap-select.css') }}" />
-
-    <!-- scrollbar css -->
-    <link rel="stylesheet" href="{{ asset('css/perfect-scrollbar.css') }}" />
-
-    <!-- custom css -->
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/animate.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/flaticon.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}" />
     @vite(['resources/js/app.js', 'resources/css/app.css'])
 
 
@@ -151,309 +143,59 @@
         </div>
     </div>
     {{-- support chart starts --}}
-    <style>
-        #chat-menu {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            z-index: 1050;
-            display: flex;
-            gap: 10px;
-            border-top-left-radius: 10px;
-            min-height: 60px;
-            min-width: 200px;
-            justify-content: space-evenly;
-        }
 
-        #chat-toggle,
-        #chat-new-thread {
-            /* width: 56px;
-            height: 56px; */
-            font-size: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #chat-window {
-            position: fixed;
-            bottom: 0;
-            right: 10px;
-            width: 60%;
-            height: 70%;
-            display: flex;
-            flex-direction: column;
-            border-radius: 12px;
-            overflow: hidden;
-            z-index: 100000;
-        }
-
-        /* THREAD LIST (WhatsApp style) */
-        #thread-list {
-            flex: 1;
-            overflow-y: auto;
-            background: #f0f2f5;
-        }
-
-        .thread-item {
-            padding: 12px 14px;
-            cursor: pointer;
-            border-bottom: 1px solid #e0e0e0;
-            background: #fff;
-        }
-
-        .thread-item:hover {
-            background: #f5f6f6;
-        }
-
-        .thread-item.active {
-            background: #e9edef;
-        }
-
-        .thread-title {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .thread-sub {
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        #chat-view {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            background: #efeae2;
-            position: relative;
-        }
-
-        #chat-messages {
-            flex: 1;
-            padding: 12px;
-            overflow-y: auto;
-            max-height: 100%;
-        }
-
-        .message {
-            max-width: 75%;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.4;
-            word-wrap: break-word;
-        }
-
-        .message.user {
-            margin-left: auto;
-            background: #d9fdd3;
-        }
-
-        .message.support {
-            background: #ffffff;
-        }
-
-        .chat-input-area {
-            padding: 8px;
-            background: #f0f2f5;
-            display: flex;
-            gap: 8px;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-
-        }
-
-        /* MESSAGE ROW (controls left/right alignment) */
-        .message-row {
-            display: flex;
-            margin-bottom: 6px;
-        }
-
-        .message-row.user {
-            justify-content: flex-end;
-        }
-
-        .message-row.support {
-            justify-content: flex-start;
-        }
-
-        /* MESSAGE BUBBLE */
-        .message {
-            max-width: 70%;
-            padding: 8px 10px 6px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.4;
-            position: relative;
-        }
-
-        .message.user {
-            background: #d9fdd3;
-            border-top-right-radius: 0;
-        }
-
-        .message.support {
-            background: #ffffff;
-            border-top-left-radius: 0;
-            width: 100%;
-        }
-
-        /* META (time + ticks) */
-        .message-meta {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 4px;
-            font-size: 11px;
-            color: #667781;
-            margin-top: 2px;
-        }
-
-        .message.support .message-meta {
-            justify-content: flex-end;
-        }
-
-        /* Tick icons */
-        .tick {
-            font-size: 12px;
-        }
-
-        .text-black {
-            color: black !important;
-        }
-
-        /* Split layout */
-        .chat-body {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .chat-threads {
-            width: 35%;
-            border-right: 1px solid #e0e0e0;
-            background: #f0f2f5;
-            overflow-y: auto;
-        }
-
-        .chat-main {
-            width: 65%;
-            display: flex;
-            flex-direction: column;
-            background: #efeae2;
-        }
-
-        #chat-view {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        #chat-messages {
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        #attachmentModal {
-            z-index: 1100000 !important;
-        }
-    </style>
-
-    <div id="chat-menu"
-        class="position-fixed bottom-0  
-            d-flex align-items-center gap-3 px-3 py-2
-            bg-white shadow rounded-pill border">
-
-        <button id="chat-new-thread" class="btn bg-transparent  ">
-            <i class="bi bi-plus text-black"></i>
-        </button>
-
-        <button id="chat-toggle" class="btn bg-transparent  ">
-            <i class="bi bi-chat-dots text-black"></i>
-        </button>
-
+    <!-- SUPPORT CHAT TOGGLE BUTTON -->
+    <div id="chat-menu" class="position-fixed bottom-0 end-0 d-flex gap-2 p-2 bg-white shadow rounded-pill">
+        <button id="chat-new-thread" class="btn btn-primary">New Ticket</button>
+        <button id="chat-toggle" class="btn btn-success">Chat</button>
     </div>
 
-    <!-- Attachment Modal -->
-    <div class="modal fade" id="attachmentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+    <!-- SUPPORT CHAT MODAL -->
+    <div class="support_chat_modal_overlay support_chat_hidden" id="supportChatModal">
 
-                <div class="modal-header">
-                    <h5 class="modal-title">Send Attachment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+        <div class="support_chat_modal">
 
-                <div class="modal-body">
+            <!-- Close -->
+            <button class="support_chat_modal_close">✕</button>
+
+            <div class="support_chat_app">
+
+                <!-- Sidebar -->
+                <aside class="support_chat_sidebar d-flex flex-column">
                     <div class="mb-3">
-                        <input type="file" id="modal-attachment" accept="image/*" class="form-control">
+                        <h2>Recent Tickets</h2>
+                        <input type="text" placeholder="Search..." class="support_chat_search">
                     </div>
-                    <div id="modal-preview" class="mb-2"></div> <!-- HEADER -->
+                    <!-- Tickets will be injected dynamically by JS -->
+                </aside>
 
-                    <textarea id="modal-message" class="form-control" rows="2" placeholder="Type a message..."></textarea>
-                </div>
+                <!-- Main Content -->
+                <main class="support_chat_content">
+                    <header class="support_chat_header">
+                        <h3 id="chat-thread-title">Select a ticket</h3>
+                        <div class="support_chat_tags" id="chat-thread-tags">
+                            <!-- Tags injected dynamically -->
+                        </div>
+                    </header>
 
-                <div class="modal-footer">
-                    <button type="button" id="modal-send-btn" class="btn btn-success">Send</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
+                    <section class="support_chat_messages">
+                        <!-- Messages appended dynamically -->
+                    </section>
 
-            </div>
-        </div>
-    </div>
-
-    <!-- CHAT WINDOW -->
-    <div id="chat-window" class="card shadow d-none">
-
-        <div class="card-header d-flex justify-content-between align-items-center blue1_bg text-white">
-            <span>Support</span>
-            <button id="chat-close" class="btn bg-transparent text-white">X</button>
-        </div>
-
-        <!-- BODY -->
-        <div class="chat-body">
-
-            <!-- LEFT: THREAD LIST -->
-            <div class="chat-threads">
-                <div id="thread-list"></div>
-            </div>
-
-            <!-- RIGHT: CHAT VIEW -->
-            <div class="chat-main">
-
-                <div id="chat-view" class="d-none">
-                    <div class="h-100">
-                        <div id="chat-messages"></div>
-                    </div>
-
-                    <div class="chat-input-area d-flex align-items-center gap-2 p-2 border-top">
+                    <footer class="support_chat_reply_box">
+                        <textarea class="support_chat_textarea" placeholder="Type your reply..."></textarea>
+                        <button class="support_chat_send_btn">Send</button>
                         <label for="chat-image" id="chat-image-btn" class="btn btn-outline-secondary mb-0">
                             <i class="bi bi-image"></i>
                         </label>
                         <input type="file" id="chat-image" accept="image/*" style="display:none">
-                        <!-- Text input -->
-                        <input type="text" id="chat-input" class="form-control" placeholder="Type a message...">
-
-
-                        <!-- Send button -->
-                        <button id="chat-send" class="btn btn-success">
-                            <i class="bi bi-send"></i>
-                        </button>
-                    </div>
-
-
-                </div>
-
+                    </footer>
+                </main>
             </div>
         </div>
     </div>
 
-
-
-
-
+    <!-- NEW THREAD MODAL -->
     <div class="modal fade" id="newThreadModal">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -470,6 +212,200 @@
             </div>
         </div>
     </div>
+
+    <!-- ATTACHMENT MODAL -->
+    <div class="modal fade z_index" id="attachmentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Attachment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="file" id="modal-attachment" accept="image/*" class="form-control mb-2">
+                    <div id="modal-preview" class="mb-2"></div>
+                    <textarea id="modal-message" class="form-control" rows="2" placeholder="Type a message..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="modal-send-btn" class="btn btn-success">Send</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .z_index {
+            z-index: 99999;
+        }
+
+        .support_chat_hidden {
+            display: none !important;
+        }
+
+        .support_chat_modal_overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .support_chat_modal {
+            background: #fff;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .support_chat_modal_close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            z-index: 10;
+        }
+
+        .support_chat_app {
+            display: flex;
+            height: 100%;
+            background: #f5f7fb;
+        }
+
+        .support_chat_sidebar {
+            width: 300px;
+            background: #fff;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .support_chat_ticket {
+            display: flex;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
+        .support_chat_ticket_active {
+            background: #eef3ff;
+        }
+
+        .support_chat_avatar {
+            background: #4f6ef7;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            margin-right: 10px;
+        }
+
+        .support_chat_content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .support_chat_header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .support_chat_messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .support_chat_message {
+            max-width: 60%;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .support_chat_message_user {
+            background: #e8f0ff;
+        }
+
+        .support_chat_message_agent {
+            background: #dff5ea;
+            margin-left: auto;
+        }
+
+        .support_chat_reply_box {
+            display: flex;
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .support_chat_textarea {
+            flex: 1;
+            resize: none;
+            padding: 10px;
+        }
+
+        .support_chat_send_btn {
+            padding: 10px 20px;
+            background: #4f6ef7;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .support_chat_search {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+
+        .support_chat_tag {
+            padding: 2px 6px;
+            font-size: 11px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+
+        .support_chat_open {
+            background: #dff5ea;
+            color: #0a7b4f;
+        }
+
+        .support_chat_high {
+            background: #ffe0e0;
+            color: #c0392b;
+        }
+
+        .support_chat_new {
+            background: #e0ebff;
+            color: #3456d1;
+        }
+
+        .support_chat_sales {
+            background: #fff0d9;
+            color: #a86400;
+        }
+    </style>
+
+
+
+
+
     <script src="{{ asset('js/secureFetch.js') }}"></script>
 
     {{-- support chat ends --}}
@@ -503,9 +439,9 @@
     <!-- nice scrollbar -->
     <script src="{{ asset('js/perfect-scrollbar.min.js') }}"></script>
 
-
-    <!-- custom js -->
-
+    {{-- laravel echo |  reverb --}}
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo/dist/echo.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reverb-js/dist/reverb.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -539,417 +475,8 @@
     </script>
 
     {{-- supoprt script --}}
-    <script>
-        // --- AUTH USER DATA ----
-        let AUTH_USER = null;
+ 
 
-        async function fetchAuthUser() {
-            const res = await fetch('/api/me', {
-                headers: {
-                    'Accept': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
-                }
-            });
-
-            if (!res.ok) {
-                console.error('Failed to fetch auth user');
-                return;
-            }
-
-            const AUTH_USER = await res.json();
-            console.log(AUTH_USER);
-            const userNameElems = document.querySelectorAll('.user_name_ytxf');
-            const userAvatarElems = document.querySelectorAll('.user_img_yxwz');
-            if (userNameElems.length) {
-                userNameElems.forEach(elem => {
-                    elem.textContent = AUTH_USER.name;
-                });
-            }
-            if (userAvatarElems.length && AUTH_USER.profile_image) {
-                userAvatarElems.forEach(elem => {
-                    elem.src = '/' + AUTH_USER.profile_image;
-                });
-            }
-            window.AUTH_USER_ID = AUTH_USER.id;
-            window.AUTH_USER = AUTH_USER;
-
-
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            Loader.show();
-
-            initChat();
-
-
-        });
-
-
-        async function initChat() {
-
-            await fetchAuthUser();
-
-            if (!AUTH_USER_ID) {
-                console.error('Auth user not loaded'.AUTH_USER, AUTH_USER_ID);
-                return;
-            }
-            const chatToggle = document.getElementById('chat-toggle');
-            const chatNew = document.getElementById('chat-new-thread');
-            const chatWindow = document.getElementById('chat-window');
-            const chatClose = document.getElementById('chat-close');
-
-            const threadList = document.getElementById('thread-list');
-            const chatView = document.getElementById('chat-view');
-            const chatMessages = document.getElementById('chat-messages');
-            const chatInput = document.getElementById('chat-input');
-            const chatSend = document.getElementById('chat-send');
-            const loadedMessageIds = new Set();
-
-            const modal = new bootstrap.Modal(document.getElementById('newThreadModal'));
-            let lastMessageId = null;
-
-            let activeThread = null;
-            let lastMessageTime = null; // track last message timestamp for polling
-            let isChatOpen = false;
-
-            // --- IMAGE UPLOAD ---
-            const chatImageBtn = document.getElementById('chat-image-btn');
-            const chatImageInput = document.getElementById('chat-image');
-            const attachmentModal = new bootstrap.Modal(document.getElementById('attachmentModal'));
-            const modalAttachment = document.getElementById('modal-attachment');
-            const modalMessage = document.getElementById('modal-message');
-            const modalSendBtn = document.getElementById('modal-send-btn');
-            const modalPreview = document.getElementById('modal-preview');
-
-            // When user clicks image icon, trigger the hidden file input
-            chatImageBtn.addEventListener('click', () => {
-                // chatImageInput.click();
-            });
-
-            // When user selects file from chat input, show modal and set file to modal
-            chatImageInput.addEventListener('change', () => {
-                const file = chatImageInput.files[0];
-                if (!file) return;
-
-                // Reset modal fields
-                modalAttachment.value = '';
-                modalMessage.value = '';
-                modalPreview.innerHTML = '';
-
-                // Show modal manually
-                attachmentModal.show();
-
-                // Copy the selected file to modal input
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(file);
-                modalAttachment.files = dataTransfer.files;
-
-                // Show preview
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    modalPreview.innerHTML =
-                        `<img src="${e.target.result}" style="max-width:100%; border-radius:6px; display:block; margin-bottom:5px;">`;
-                };
-                reader.readAsDataURL(file);
-            });
-
-
-
-            modalSendBtn.addEventListener('click', async () => {
-                if (!activeThread) return;
-
-                const text = modalMessage.value.trim();
-                const file = modalAttachment.files[0];
-
-                if (!text && !file) {
-                    alert('Please type a message or select a file.');
-                    return;
-                }
-
-                const formData = new FormData();
-                formData.append('message', text || '');
-                if (file) formData.append('attachment', file);
-
-                try {
-                    const res = await fetch(`/api/support/reply/${activeThread}`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
-                            'Accept': 'application/json'
-                        },
-                        body: formData
-                    });
-
-                    const data = await res.json();
-                    if (data.success) {
-                        modalAttachment.value = '';
-                        modalMessage.value = '';
-                        modalPreview.innerHTML = '';
-                        attachmentModal.hide();
-                        loadMessages();
-                    } else {
-                        alert('Failed to send message.');
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Error sending message.');
-                }
-            });
-
-            // IMAGE UPLOAD END
-
-            // --- CHAT TOGGLE ---
-            chatToggle.onclick = () => {
-                chatWindow.classList.toggle('d-none');
-                isChatOpen = !chatWindow.classList.contains('d-none');
-
-                if (isChatOpen) fetchThreads();
-                else stopPolling();
-            };
-
-
-            chatClose.onclick = () => chatWindow.classList.add('d-none');
-            chatNew.onclick = () => modal.show();
-
-
-
-            // --- CREATE NEW THREAD ---
-            document.getElementById('create-thread-btn').onclick = () => {
-                const title = document.getElementById('thread-title').value;
-                const description = document.getElementById('thread-desc').value;
-
-                fetch('/api/support/threads', {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            title,
-                            description
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(() => {
-                        modal.hide();
-                        fetchThreads();
-                    });
-            };
-
-            // --- FETCH THREADS ---
-            function fetchThreads() {
-                fetch('/api/support/threads', {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        threadList.innerHTML = '';
-                        chatView.classList.add('d-none');
-                        lastMessageId = null;
-
-                        data.forEach(thread => {
-                            const div = document.createElement('div');
-                            div.className =
-                                'thread-item d-flex justify-content-between align-items-center';
-                            div.innerHTML = `
-                <div class="thread-info" style="flex:1; cursor:pointer;">
-                    <div class="thread-title">${thread.title}</div>
-                    <div class="thread-sub">${thread.status === 'closed' ? 'Closed' : 'Open'}</div>
-                </div>
-                ${thread.status !== 'closed' ? `<button class="btn btn-sm btn-danger close-thread-btn">Close</button>` : ''}
-            `;
-
-                            div.querySelector('.thread-info').onclick = () => openThread(thread.id,
-                                div);
-
-                            const closeBtn = div.querySelector('.close-thread-btn');
-                            if (closeBtn) {
-                                closeBtn.onclick = (e) => {
-                                    e.stopPropagation(); // prevent opening thread
-                                    closeThread(thread.id, div);
-                                }
-                            }
-
-                            threadList.appendChild(div);
-                        });
-                    });
-            }
-            // --- CLOSE THREAD ---
-
-            function closeThread(threadId, threadDiv) {
-                fetch(`/api/support/threads/${threadId}/close`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        alert(data.message);
-                        // Update UI
-                        const sub = threadDiv.querySelector('.thread-sub');
-                        sub.textContent = 'Closed';
-                        const btn = threadDiv.querySelector('.close-thread-btn');
-                        if (btn) btn.remove();
-                    });
-            }
-
-
-            // --- OPEN THREAD ---
-            function openThread(threadId, div) {
-                document.querySelectorAll('.thread-item').forEach(t => t.classList.remove('active'));
-                div.classList.add('active');
-
-                activeThread = threadId;
-                chatView.classList.remove('d-none');
-                loadedMessageIds.clear();
-                lastMessageId = null;
-                chatMessages.innerHTML = '';
-                lastMessageTime = null;
-
-                loadMessages();
-                startPolling(); // start auto-update
-            }
-
-            // --- APPEND MESSAGE ---
-            function appendMessage(msg) {
-                const isMine = msg.sender_id === AUTH_USER_ID;
-
-                const row = document.createElement('div');
-                row.className = 'message-row ' + (isMine ? 'user' : 'support');
-
-                const bubble = document.createElement('div');
-                bubble.className = 'message ' + (isMine ? 'user' : 'support');
-
-                const time = new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                let content = '';
-                if (msg.message) content += `<div>${msg.message}</div>`;
-                if (msg.attachment) {
-                    content +=
-                        `<div><img src="${msg.attachment}" style="max-width:200px; display:block; margin-top:5px; border-radius:6px;"></div>`;
-                }
-
-                bubble.innerHTML = `
-        ${content}
-        <div class="message-meta">
-            <span>${time}</span>
-            ${isMine ? '<span class="tick">✓✓</span>' : ''}
-        </div>
-    `;
-
-                row.appendChild(bubble);
-                chatMessages.appendChild(row);
-            }
-
-
-
-
-
-
-            function loadMessages() {
-                if (!activeThread) return;
-
-                let url = `/api/support/threads/${activeThread}`;
-                if (lastMessageId) {
-                    url += `?after_id=${lastMessageId}`;
-                }
-
-                fetch(url, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token')
-                        }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (!data.length) return;
-
-                        data.forEach(msg => {
-                            if (loadedMessageIds.has(msg.id)) return;
-
-                            loadedMessageIds.add(msg.id);
-                            appendMessage(msg);
-                        });
-
-                        lastMessageId = data[data.length - 1].id;
-                        scrollIfNearBottom();
-                    });
-
-            }
-
-
-            // --- SEND MESSAGE ---
-            chatSend.onclick = () => {
-                const message = chatInput.value.trim();
-                if (!message || !activeThread) return;
-
-                fetch(`/api/support/reply/${activeThread}`, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Authorization': 'Bearer ' + localStorage.getItem('sanctum_token'),
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message
-                        })
-                    })
-                    .then(res => res.json())
-                    .then(() => {
-                        chatInput.value = '';
-                        // loadMessages(); // reload after sending
-                    });
-            };
-
-            // --- POLLING (auto-update) ---
-            let pollingInterval = null;
-
-            function startPolling() {
-                stopPolling();
-
-                let interval = 2000;
-
-                pollingInterval = setInterval(() => {
-                    if (!activeThread || !isChatOpen) return;
-
-                    loadMessages();
-
-                    // Backoff after inactivity
-                    interval = lastMessageId ? 5000 : 2000;
-                }, interval);
-            }
-
-
-            function stopPolling() {
-                if (pollingInterval) {
-                    clearInterval(pollingInterval);
-                    pollingInterval = null;
-                }
-            }
-
-            function scrollIfNearBottom() {
-                const threshold = 100;
-                const isNearBottom =
-                    chatMessages.scrollHeight -
-                    chatMessages.scrollTop -
-                    chatMessages.clientHeight < threshold;
-
-                if (isNearBottom) {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }
-            }
-        };
-    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const currentUrl = window.location.href;

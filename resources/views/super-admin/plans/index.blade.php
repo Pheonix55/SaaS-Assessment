@@ -80,6 +80,12 @@
                                 <option value="year">Yearly</option>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Features</label>
+                            <select id="plan-features" name="features[]" class="form-select" multiple>
+                                <option value="users" disabled>No features available</option>
+                            </select>
+                        </div>
 
                         <button class="btn btn-primary w-100" type="submit">
                             Save Plan
@@ -94,6 +100,7 @@
     <script>
         const API_BASE = '/api/superadmin/stripe/products';
         const token = localStorage.getItem('sanctum_token');
+        let featureSelect = null;
         let currentPage = 1;
 
         const planModal = new bootstrap.Modal(document.getElementById('planModal'));
@@ -198,69 +205,16 @@
     `;
         }
 
-        // async function loadPlans() {
-        //     try {
-        //         const res = await fetch(API_BASE, {
-        //             headers: {
-        //                 Authorization: `Bearer ${token}`
-        //             }
-        //         });
-
-        //         if (!res.ok) {
-        //             throw new Error('Failed to load plans');
-        //         }
-
-        //         const result = await res.json();
-        //         const plans = result.plans || [];
-
-        //         const tbody = document.querySelector('#plans-table tbody');
-        //         tbody.innerHTML = '';
-
-        //         if (!plans.length) {
-        //             tbody.innerHTML = `
-    //         <tr>
-    //             <td colspan="6" class="text-center">No plans found</td>
-    //         </tr>
-    //     `;
-        //             return;
-        //         }
-
-        //         plans.forEach((plan, index) => {
-        //             tbody.innerHTML += `
-    //         <tr>
-    //             <td>${index + 1}</td>
-    //             <td>${plan.name}</td>
-    //             <td>${plan.price} PKR</td>
-    //             <td>${plan.duration}</td>
-    //             <td>${plan.stripe_product_id ?? '-'}</td>
-    //             <td>
-    //                 <button class="btn btn-sm btn-warning" onclick="editPlan(${plan.id})">Edit</button>
-    //                 <button class="btn btn-sm btn-danger" onclick="deletePlan(${plan.id})">Delete</button>
-    //             </td>
-    //         </tr>
-    //     `;
-        //         });
-
-        //     } catch (error) {
-        //         showSweetAlert({
-        //             title: 'Error',
-        //             message: error.message,
-        //             icon: 'error'
-        //         });
-        //     }
-        // }
-
         // /* Create / Update */
         document.getElementById('plan-form').addEventListener('submit', async e => {
             e.preventDefault();
-
             const id = document.getElementById('plan-id').value;
             const payload = {
                 name: document.getElementById('plan-name').value,
                 amount: document.getElementById('plan-amount').value,
-                interval: document.getElementById('plan-interval').value
+                interval: document.getElementById('plan-interval').value,
+                features: featureSelect.items.map(id => Number(id))
             };
-
             const url = id ? `${API_BASE}/${id}` : API_BASE;
             const method = id ? 'PUT' : 'POST';
 
@@ -315,6 +269,7 @@
                 const result = await res.json();
                 console.log(result);
                 const plan = result.plans.data.find(p => p.id === id);
+                document.getElementById('plan-features').value = plan.features.map(f => f.id);
 
                 if (!plan) {
                     throw new Error('Plan not found');
@@ -384,7 +339,79 @@
                 ]
             });
         }
+        let allFeatures = [];
 
-        document.addEventListener('DOMContentLoaded', loadPlans);
+        // async function loadFeatures() {
+        //     try {
+        //         const res = await fetch('/api/superadmin/features', {
+        //             headers: {
+        //                 Authorization: `Bearer ${token}`
+        //             }
+        //         });
+        //         const data = await res.json();
+        //         allFeatures = data.features;
+
+        //         const select = document.getElementById('plan-features');
+        //         new TomSelect("#plan-features", {
+        //             plugins: ['remove_button'],
+        //             placeholder: "Select plan features",
+        //             render: {
+        //                 option: function(data, escape) {
+        //                     return `<div>${escape(data.text)}</div>`;
+        //                 }
+        //             }
+        //         });
+        //         console.log(allFeatures, select);
+        //         select.innerHTML = '';
+
+        //         allFeatures.forEach(f => {
+        //             select.innerHTML += `<option value="${f.id}">${f.name}</option>`;
+        //         });
+        //     } catch (err) {
+        //         console.error('Failed to load features', err);
+        //     }
+        // }
+
+
+
+        async function loadFeatures() {
+            try {
+                const res = await fetch('/api/superadmin/features', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json();
+
+                const features = data.features.map(f => ({
+                    id: f.id,
+                    title: f.name
+                }));
+
+                if (featureSelect) {
+                    featureSelect.destroy();
+                }
+
+                featureSelect = new TomSelect('#plan-features', {
+                    plugins: ['remove_button'],
+                    maxItems: null,
+                    valueField: 'id',
+                    labelField: 'title',
+                    searchField: 'title',
+                    options: features,
+                    placeholder: 'Select plan features',
+                    create: false
+                });
+
+            } catch (err) {
+                console.error('Failed to load features', err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPlans();
+            loadFeatures();
+        });
     </script>
 @endsection

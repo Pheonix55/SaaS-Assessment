@@ -37,7 +37,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
     <!-- bootstrap css -->
 
     @vite(['resources/js/app.js', 'resources/css/app.css'])
@@ -61,7 +62,7 @@
                             <div class="user_img "><img class="img-responsive user_img_yxwz top_navbar_img"
                                     src="images/layout_img/user_img.jpg" alt="#" /></div>
                             <div class="user_info">
-                                <h6 class="user_name_ytx f">John David</h6>
+                                <h6 class="user_name_ytxf">John David</h6>
                                 <p><span class="online_animation"></span> Online</p>
                             </div>
                         </div>

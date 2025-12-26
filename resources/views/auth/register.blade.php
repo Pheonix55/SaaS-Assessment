@@ -76,7 +76,7 @@
     <script>
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
+            Loader.show();
             const formData = new FormData(this);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -111,31 +111,6 @@
                 });
 
             Loader.show();
-
-            // fetch("{{ url('api/register') }}", {
-            // method: "POST",
-            // headers: {
-            // 'X-CSRF-TOKEN': token,
-            // 'Accept': 'application/json'
-            // },
-            // body: formData
-            // })
-            // .then(res => res.json())
-            // .then(data => {
-            // Loader.hide();
-
-            // if (data.success) {
-            // alert('Registration successful');
-            // window.location.href = "{{ url('/') }}";
-            // } else {
-            // alert(data.message || 'Registration failed');
-            // }
-            // })
-            // .catch(err => {
-            // // Loader.hide();
-            // console.error(err);
-            // alert('An unexpected error occurred');
-            // });
         });
     </script>
 @endsection

@@ -56,7 +56,7 @@
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            //  Loader.show();
+             Loader.show();
 
             const formData = new FormData(this);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -90,7 +90,7 @@
                     }
                 })
                 .catch(error => {
-                    // Loader.hide();
+                    Loader.hide();
                     console.error(error);
                     alert('An unexpected error occurred.');
                 });

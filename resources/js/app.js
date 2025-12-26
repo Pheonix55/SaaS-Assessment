@@ -25,7 +25,7 @@ window.showSweetAlert = async function ({
         });
         return;
     }
-
+    
     // Show alert with empty confirm button to create actions container
     const result = await Swal.fire({
         title,
@@ -60,3 +60,5 @@ window.showSweetAlert = async function ({
 
     return result;
 };
+
+import "./supportChat";

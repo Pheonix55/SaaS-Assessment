@@ -111,6 +111,10 @@ body.demos .container-fluid {
     max-width: 1080px
 }
 
+.container-fluid {
+    min-width: 70vw;
+}
+
 a {
     color: #1f1f1f;
     text-decoration: none !important;
@@ -923,8 +927,8 @@ a[data-toggle="collapse"] {
     margin-bottom: 30px;
     padding: 25px 35px 22px 38px;
     box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
-    margin-left: -40px;
-    margin-right: -40px;
+    /* margin-left: -40px;
+    margin-right: -40px; */
     position: relative;
 }
 

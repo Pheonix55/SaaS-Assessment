@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Enums\CompanyStatus;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Cashier\Billable;
-use Laravel\Cashier\Subscription;
+use Laravel\Cashier\{Billable, Subscription};
+use App\Enums\CompanyStatus;
+use App\Traits\Auditable;
 
 class Company extends Model
 {
-    use Billable;
+    use Auditable,Billable;
 
     protected $fillable = [
         'name', 'stripe_id', 'plan_id', 'email', 'password', 'address', 'phone', 'website', 'status',
@@ -60,5 +60,20 @@ class Company extends Model
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function owner()
+    {
+        return $this->hasOne(User::class)->where('role', 'admin');
+    }
+
+    public function hasFeature(string $featureKey): bool
+    {
+        return $this->subscription
+            && $this->subscription->status === 'active'
+            && $this->subscription->plan
+                ->features()
+                ->where('key', $featureKey)
+                ->exists();
     }
 }

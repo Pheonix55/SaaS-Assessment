@@ -28,10 +28,13 @@ class StripeProductController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'name' => 'required|string',
             'amount' => 'required|numeric', // PKR
             'interval' => 'required|in:month,year',
+            'features' => 'array',
+            'features.*' => 'exists:features,id',
         ]);
         try {
             return DB::transaction(function () use ($request) {
@@ -60,10 +63,13 @@ class StripeProductController extends Controller
                     'duration' => $request->interval,
                     'currency' => 'pkr',
                 ]);
+                if ($request->has('features')) {
+                    $plan->features()->sync($request->features);
+                }
 
                 return response()->json([
                     'success' => true,
-                    'plan' => $plan,
+                    'plan' => $plan->load('features'),
                 ], 201);
             });
 
@@ -87,6 +93,8 @@ class StripeProductController extends Controller
         $request->validate([
             'name' => 'required|string',
             'amount' => 'nullable|numeric', // PKR
+            'features' => 'array',
+            'features.*' => 'exists:features,id',
         ]);
 
         try {
@@ -117,6 +125,9 @@ class StripeProductController extends Controller
                         'stripe_price_id' => $stripePrice->id,
                         'amount' => $request->amount,
                     ]);
+                }
+                if ($request->has('features')) {
+                    $plan->features()->sync($request->features);
                 }
 
                 return response()->json([

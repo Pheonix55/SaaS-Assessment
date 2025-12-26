@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\{Broadcast, Route};
 use App\Http\Controllers\Api\{AuthController, InvitationController};
 use App\Http\Controllers\PagesController;
-use App\Http\Middleware\SetCompanyContext;
 
 Route::post('/api/login', [AuthController::class, 'login'])->middleware('guest')->name('login.post');
 Route::get('/', [PagesController::class, 'login'])->name('login');
@@ -21,3 +20,4 @@ Route::get('/user/profile', [PagesController::class, 'userProfile'])->name('user
 Route::get('/invite-accept/view/{token}', [InvitationController::class, 'showInviteRegistrationForm'])
     ->name('invite-accept');
 Route::get('/test', [PagesController::class, 'test'])->name('test');
+Broadcast::routes();

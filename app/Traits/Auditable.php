@@ -3,7 +3,6 @@
 namespace App\Traits;
 
 use App\Services\AuditLogger;
-
 trait Auditable
 {
     protected static function bootAuditable()

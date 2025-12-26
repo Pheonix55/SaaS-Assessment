@@ -61,20 +61,6 @@ class User extends Authenticatable
         return $this->belongsTo(Company::class);
     }
 
-    // public function hasRole($role)
-    // {
-    //     if ($this->role = 'SUPER_ADMIN') {
-    //         return true;
-    //     }
-
-    //     return $this->role === $role;
-    // }
-
-    // public function messages()
-    // {
-    //     return SupportMessage::with('supportThread')->where('sender_id', $this->id)->get();
-    // }
-
     public function userMessages($thread_id)
     {
         return SupportMessage::with('supportThread')->where('support_thread_id', $thread_id)->get();
@@ -111,4 +97,6 @@ class User extends Authenticatable
 
         return false;
     }
+
+    
 }

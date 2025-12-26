@@ -164,7 +164,7 @@
                         </div>
                         <div class="table_section padding_infor_info">
                             <div class="table-responsive-sm">
-                                <table class="table table-hover" id="transactions-table">
+                                {{-- <table class="table table-hover" id="transactions-table">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
@@ -180,7 +180,23 @@
 
                                     </tbody>
                                 </table>
-                                <div class="mt-3 text-center" id="audit-pagination"></div>
+                                <div class="mt-3 text-center" id="audit-pagination"></div> --}}
+
+                                <table class="table table-bordered" id="audit-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Entity</th>
+                                            <th>Action</th>
+                                            <th>Performed By</th>
+                                            <th>Summary</th>
+                                            <th>Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+
+                                <div id="audit-pagination" class="mt-3"></div>
 
                             </div>
                         </div>
@@ -612,7 +628,7 @@
                 }
             </script>
 
-            <script>
+            {{-- <script>
                 const AUDIT_API = '/api/superadmin/audit-logs';
                 const token = localStorage.getItem('sanctum_token');
 
@@ -717,5 +733,182 @@
                 }
 
                 document.addEventListener('DOMContentLoaded', () => loadAuditLogs());
+            </script> --}}
+            <script>
+                const AUDIT_API = '/api/superadmin/audit-logs';
+                const token = localStorage.getItem('sanctum_token');
+
+                /* =========================
+                   ENTRY POINT
+                ========================= */
+                document.addEventListener('DOMContentLoaded', () => {
+                    loadAuditLogs();
+                });
+
+                /* =========================
+                   API CALL
+                ========================= */
+                async function loadAuditLogs(page = 1) {
+                    try {
+                        const res = await fetch(`${AUDIT_API}?page=${page}`, {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                Accept: 'application/json'
+                            }
+                        });
+
+                        const result = await res.json();
+
+                        if (!result.success) {
+                            showError('Failed to load audit logs');
+                            return;
+                        }
+
+                        renderAuditTable(result.logs.data);
+                        renderPagination(result.logs);
+
+                    } catch (err) {
+                        showError(err.message);
+                    }
+                }
+
+                /* =========================
+                   TABLE RENDERING
+                ========================= */
+                function renderAuditTable(logs) {
+                    const tbody = document.querySelector('#audit-table tbody');
+                    tbody.innerHTML = '';
+
+                    if (!logs.length) {
+                        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center">No audit logs found</td>
+            </tr>
+        `;
+                        return;
+                    }
+
+                    logs.forEach(log => {
+                        const row = buildAuditRow(log);
+                        tbody.insertAdjacentHTML('beforeend', row);
+                    });
+                }
+
+                function buildAuditRow(log) {
+                    return `
+<tr>
+    <td>${log.id}</td>
+    <td>
+        <span class="badge text-white bg-info">
+            ${formatAuditableType(log.auditable_type)}
+        </span>
+    </td>
+    <td>
+        <span class="badge text-white bg-${getActionColor(log.action)}">
+            ${log.action.toUpperCase()}
+        </span>
+    </td>
+    <td>${log.user?.name ?? 'System'}</td>
+    <td>${generateAuditSummary(log)}</td>
+    <td>${formatDate(log.created_at)}</td>
+</tr>
+`;
+                }
+
+                /* =========================
+                   FORMATTERS
+                ========================= */
+                function formatAuditableType(type) {
+                    const map = {
+                        'App\\Models\\Company': 'Company',
+                        'App\\Models\\Transaction': 'Transaction',
+                        'App\\Models\\User': 'User'
+                    };
+
+                    return map[type] ?? 'Unknown';
+                }
+
+                function getActionColor(action) {
+                    switch (action) {
+                        case 'created':
+                            return 'success';
+                        case 'updated':
+                            return 'warning';
+                        case 'deleted':
+                            return 'danger';
+                        default:
+                            return 'secondary';
+                    }
+                }
+
+                function formatDate(date) {
+                    return new Date(date).toLocaleString();
+                }
+
+                /* =========================
+                   SUMMARY GENERATOR (KEY)
+                ========================= */
+                function generateAuditSummary(log) {
+                    const type = formatAuditableType(log.auditable_type);
+                    const values = log.new_values ?? {};
+
+                    switch (type) {
+                        case 'Transaction':
+                            return `
+                Amount ${values.amount ?? '-'}
+                ${values.currency ? values.currency.toUpperCase() : ''}
+            `;
+
+                        case 'Company':
+                            return `
+                Company "${values.name ?? '-'}"
+                (${values.email ?? '-'})
+            `;
+
+                        case 'User':
+                            return `
+                User "${values.name ?? values.email ?? '-'}"
+            `;
+
+                        default:
+                            return `Record #${log.auditable_id}`;
+                    }
+                }
+
+                /* =========================
+                   PAGINATION
+                ========================= */
+                function renderPagination(pagination) {
+                    const container = document.getElementById('audit-pagination');
+                    if (!container) return;
+
+                    container.innerHTML = '';
+
+                    pagination.links.forEach(link => {
+                        if (!link.url) return;
+
+                        const btn = document.createElement('button');
+                        btn.innerHTML = link.label;
+                        btn.className = `btn btn-sm ${link.active ? 'btn-primary' : 'btn-outline-primary'} mx-1`;
+
+                        btn.onclick = () => {
+                            const page = new URL(link.url).searchParams.get('page');
+                            loadAuditLogs(page);
+                        };
+
+                        container.appendChild(btn);
+                    });
+                }
+
+                /* =========================
+                   ERROR HANDLING
+                ========================= */
+                function showError(message) {
+                    window.showSweetAlert({
+                        title: 'Error',
+                        message,
+                        icon: 'error'
+                    });
+                }
             </script>
         @endsection

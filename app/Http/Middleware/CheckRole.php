@@ -18,6 +18,8 @@ class CheckRole
         $user = $request->user();
         app(PermissionRegistrar::class)
             ->setPermissionsTeamId($user->company_id);
+
+            
         if (! $user || ! $user->hasRole($role)) {
             abort(403, 'Unauthorized '.'Only'.' '.$role.' '.'access is allowed.');
         }

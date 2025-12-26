@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\SupportMessageSent;
 use App\Http\Controllers\Controller;
 use App\Models\SupportThread;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SupportMessagesController extends Controller
 {
@@ -54,26 +56,6 @@ class SupportMessagesController extends Controller
         return $query->latest()->get();
     }
 
-    // public function getMessagesForUser(Request $request, $threadId)
-    // {
-    //     $query = SupportThread::where('id', $threadId)
-    //         ->where('company_id', $request->user()->company_id);
-
-    //     if ($request->user()->hasRole('user')) {
-    //         $query->where('user_id', $request->user()->id);
-    //     }
-
-    //     $thread = $query->firstOrFail();
-
-    //     $messages = $thread->messages()->orderBy('created_at', 'asc');
-
-    //     if ($request->has('after')) {
-    //         $messages->where('created_at', '>', $request->query('after'));
-    //     }
-
-    //     return $messages->get();
-    // }
-
     public function getMessagesForUser(Request $request, $threadId)
     {
         $thread = SupportThread::where('id', $threadId)
@@ -92,29 +74,47 @@ class SupportMessagesController extends Controller
         return $query->get();
     }
 
-    public function supportReply(Request $request, $thread)
+    public function supportReply(Request $request, $threadId)
     {
         $request->validate([
             'message' => 'nullable|string|max:1000',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:5120',
         ]);
 
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('support_attachments', 'public');
-            $attachmentPath = asset('storage/'.$attachmentPath);
-        }
-
-        $thread = SupportThread::where('id', $thread)
+        $thread = SupportThread::where('id', $threadId)
             ->where('company_id', $request->user()->company_id)
             ->firstOrFail();
 
-        return $thread->messages()->create([
-            'sender_id' => $request->user()->id,
-            'sender_type' => $request->user()->role,
-            'message' => $request->message,
-            'attachment' => $attachmentPath,
-        ]);
+        $attachmentPath = null;
+
+        if ($request->hasFile('attachment')) {
+            $path = $request->file('attachment')->store('support_attachments', 'public');
+            $attachmentPath = asset('storage/'.$path);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $message = $thread->messages()->create([
+                'sender_id' => $request->user()->id,
+                'sender_type' => $request->user()->role,
+                'message' => $request->message,
+                'attachment' => $attachmentPath,
+            ]);
+
+            broadcast(new SupportMessageSent($message, $request->user(), $thread->id));
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'data' => $message,
+            ], 201);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            throw $e;
+        }
     }
 
     public function closeThread(Request $request, $threadId)

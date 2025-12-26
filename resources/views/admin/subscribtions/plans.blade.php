@@ -120,6 +120,18 @@
                 }
                 return num.toString();
             }
+
+            function renderPlanFeatures(features) {
+                if (!features || features.length === 0) {
+                    return `<li><em>No features included</em></li>`;
+                }
+
+                return features.map(feature => `
+        <li>
+            <span>${feature.name}</span>
+        </li>
+    `).join('');
+            }
             // Load subscription plans
             (async function loadPlans() {
                 try {
@@ -203,35 +215,83 @@
                         return;
                     }
 
+                    //                     plans.forEach(plan => {
+                    //                         const col = document.createElement('div');
+                    //                         col.className = 'col-lg-4 col-md-6 col-sm-6 col-xs-12';
+                    //                         col.innerHTML = `
+                // <div class="table_price full">
+                //     <div class="inner_table_price">
+                //         <div class="price_table_head blue1_bg">
+                //             <h2>${plan.name}</h2>
+                //         </div>
+                //         <div class="price_table_inner">
+                //             <div class="cont_table_price_blog">
+                //                 <p class="blue1_color">
+                //                     <span class="price_no">${formatPricePkr(plan.price)}</span> pkr /
+                //                     <span class="" style="font-weight: 300;">
+                //                         ${plan.duration.charAt(0).toUpperCase() + plan.duration.slice(1)}
+                //                     </span>
+                //                 </p>
+                //             </div>
+                //             <div class="cont_table_price">
+                //                 <ul>
+                //                     <li><a href="#" style="font-style: italic;">Access to features</a></li>
+                //                     <li><a href="#" style="font-style: italic;">Email support</a></li>
+                //                     <li><a href="#" style="font-style: italic;">Regular updates</a></li>
+                //                 </ul>
+                //             </div>
+                //         </div>
+                //         <div class="price_table_bottom">
+                //             <div class="center">
+                //                 <button class="main_bt subscribe-btn" data-plan-id="${plan.id}">Buy Now</button>
+                //             </div>
+                //         </div>
+                //     </div>
+                // </div>
+                // `;
+
                     plans.forEach(plan => {
+                        const isCurrentPlan =
+                            subscription &&
+                            currentPlan &&
+                            Number(currentPlan.id) === Number(plan.id);
+
                         const col = document.createElement('div');
                         col.className = 'col-lg-4 col-md-6 col-sm-6 col-xs-12';
+
                         col.innerHTML = `
-<div class="table_price full">
+<div class="table_price full ${isCurrentPlan ? 'active-plan' : ''}">
     <div class="inner_table_price">
         <div class="price_table_head blue1_bg">
             <h2>${plan.name}</h2>
         </div>
+
         <div class="price_table_inner">
             <div class="cont_table_price_blog">
                 <p class="blue1_color">
                     <span class="price_no">${formatPricePkr(plan.price)}</span> pkr /
-                    <span class="" style="font-weight: 300;">
+                    <span style="font-weight: 300;">
                         ${plan.duration.charAt(0).toUpperCase() + plan.duration.slice(1)}
                     </span>
                 </p>
             </div>
+
             <div class="cont_table_price">
                 <ul>
-                    <li><a href="#" style="font-style: italic;">Access to features</a></li>
-                    <li><a href="#" style="font-style: italic;">Email support</a></li>
-                    <li><a href="#" style="font-style: italic;">Regular updates</a></li>
+                    ${renderPlanFeatures(plan.features)}
                 </ul>
             </div>
         </div>
+
         <div class="price_table_bottom">
             <div class="center">
-                <button class="main_bt subscribe-btn" data-plan-id="${plan.id}">Buy Now</button>
+                ${
+                    isCurrentPlan
+                        ? `<button class="main_bt btn-danger disabled" disabled>Active Plan</button>`
+                        : `<button class="main_bt subscribe-btn" data-plan-id="${plan.id}">
+                                    Subscribe
+                               </button>`
+                }
             </div>
         </div>
     </div>
@@ -239,18 +299,8 @@
 `;
 
                         plansContainer.appendChild(col);
-
-                        if (subscription && currentPlan && plan && Number(currentPlan.id) ===
-                            Number(plan.id)) {
-                            const btn = col.querySelector('.subscribe-btn');
-                            if (btn) {
-                                btn.disabled = true;
-                                btn.textContent = 'Active';
-                                btn.classList.remove('btn-primary');
-                                btn.classList.add('btn-danger');
-                            }
-                        }
                     });
+
                 } catch (err) {
                     Loader.hide();
                     console.error(err);

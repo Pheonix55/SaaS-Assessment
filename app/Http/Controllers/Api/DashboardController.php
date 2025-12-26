@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     public function getPlansSubscriptions(Request $request)
     {
-        $plans = Plan::all();
+        $plans = Plan::with('features')->get();
 
         $company = $request->user()->company;
 
@@ -25,7 +25,8 @@ class DashboardController extends Controller
         $subscription = Subscription::where('company_id', $company->id)
             ->where('stripe_status', 'active')
             ->first();
-        $currentPlan = Plan::where('id', $company->plan_id)->first();
+        $currentPlan = $company->plan;
+        // $currentPlan = Plan::where('id', $company->plan_id)->first();
         // dd($company, $subscription, $currentPlan);
 
         return response()->json([

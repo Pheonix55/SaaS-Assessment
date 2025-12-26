@@ -24,6 +24,12 @@ Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':SUP
     Route::get('/audit-logs', [SuperAdminController::class, 'auditLogs']);
     Route::get('/subscription-log', [SuperAdminController::class, 'subscriptionEvents']);
 
+    // permissions
+    Route::get('/features', [SuperAdminController::class, 'getFeatures']);
+
+
+
+
 });
 
 Route::middleware(['auth:sanctum', CheckCompanyId::class, CheckRole::class.':admin'])->group(function () {

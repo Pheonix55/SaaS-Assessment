@@ -3,63 +3,50 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use App\Models\Company;
+use App\Models\Feature;
 use Spatie\Permission\Models\{Permission, Role};
-
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::transaction(function () {
-            // Define all permissions
-            $permissions = [
-                'manage-company',
-                'manage-billing',
-                'invite-users',
-                'view-support',
-                'reply-support',
-                'upload-files',
-                'view-dashboard',
-                'manage-companies'
-            ];
+        $permissions = [
+            'manage-companies',
+            'approve-company',
+            'suspend-company',
+            'view-all-companies',
+            'view-system-dashboard',
+            'manage-users',
+            'invite-users',
+            'view-dashboard',
+            'manage-plans',
+            'manage-subscriptions',
+            'view-audit-logs',
+            'create-threads',
+            'view-threads',
+            'reply-threads',
+            'manage-threads',
+            'delete-threads',
+            'manage-transactions',
+            'upload-files',
+            'manage-files',
+        ];
 
-            // Create permissions globally
-            foreach ($permissions as $permission) {
-                Permission::firstOrCreate([
-                    'name' => $permission,
-                    'guard_name' => 'web',
-                ]);
-            }
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
+        }
+        Feature::insert([
+            ['key' => 'invite_users', 'name' => 'Invite Users'],
+            ['key' => 'support', 'name' => 'Support'],
+            ['key' => 'billing', 'name' => 'Billing'],
+        ]);
+        $superAdminRole = Role::firstOrCreate([
+            'name' => 'SUPER_ADMIN',
+            'guard_name' => 'web',
+        ]);
 
-            // Define roles and associated permissions
-            $rolesPermissions = [
-                'SUPER_ADMIN' => $permissions,
-                'admin' => ['manage-company', 'manage-billing', 'invite-users', 'view-support', 'reply-support', 'upload-files', 'view-dashboard'],
-                'support' => ['view-support', 'reply-support', 'upload-files'],
-                'user' => ['upload-files', 'view-dashboard'],
-            ];
-
-            // Assign roles and permissions per company
-            $companies = Company::all();
-
-            foreach ($companies as $company) {
-                foreach ($rolesPermissions as $roleName => $perms) {
-
-                    // Create role for this company
-                    $role = Role::firstOrCreate(
-                        [
-                            'name' => $roleName,
-                            'company_id' => $company->id,
-                            'guard_name' => 'web',
-                        ]
-                    );
-
-                    // Assign permissions
-                    $role->syncPermissions($perms);
-                }
-                $this->command->info("Roles and permissions seeded for company {$company->id}");
-            }
-        });
+        $superAdminRole->syncPermissions($permissions);
     }
 }

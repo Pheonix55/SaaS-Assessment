@@ -8,8 +8,7 @@ use App\Enums\CompanyStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Models\{Company, User};
-use Spatie\Permission\PermissionRegistrar;
-use Spatie\Permission\Models\Role;
+
 class AuthController extends Controller
 {
     public function listUser(Request $request): JsonResponse
@@ -54,7 +53,7 @@ class AuthController extends Controller
 
         $company = $user->company;
 
-        $redirect = route('login'); // default
+        $redirect = route('login');
 
         if ($company) {
             if ($user->hasRoleInCompany('SUPER_ADMIN', $company->id, 'web')) {
@@ -69,6 +68,9 @@ class AuthController extends Controller
                 'success' => false,
                 'message' => 'User is not associated with a company',
             ], 403);
+        }
+        if ($user->role = 'admin' && $company->status == CompanyStatus::PENDING) {
+            $redirect = route('admin.dashboard');
         }
 
         return response()->json([
@@ -113,15 +115,7 @@ class AuthController extends Controller
                 'company_id' => $company->id,
                 'role' => 'admin',
             ]);
-            app(PermissionRegistrar::class)->setPermissionsTeamId($company->id);
 
-            $role = Role::firstOrCreate([
-                'name' => 'admin',
-                'guard_name' => 'web',
-                'company_id' => $user->company_id,
-            ]);
-
-            $user->assignRole('admin');
             DB::commit();
 
             return response()->json([

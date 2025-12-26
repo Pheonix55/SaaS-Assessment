@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Services;
-use App\Models\AuditLog;
+
 use Illuminate\Database\Eloquent\Model;
+use App\Models\{AuditLog, Company};
+
 class AuditLogger
 {
     public static function log(
@@ -12,7 +14,7 @@ class AuditLogger
         ?array $new = null
     ): void {
         AuditLog::create([
-            'company_id' => auth()->user()?->company_id ?? $model->company_id,
+            'company_id' => auth()->user()?->company_id ?? ($model instanceof Company ? $model->id : $model->company_id),
             'user_id' => auth()->id(),
             'action' => $action,
             'auditable_type' => get_class($model),
